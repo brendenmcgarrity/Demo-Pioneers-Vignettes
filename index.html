@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Pioneers - Master Demo Guide & Interactive SE Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Reduce first-request latency for GitHub-hosted screenshots -->
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <link rel="dns-prefetch" href="//raw.githubusercontent.com">
+    <!-- Custom Chart Container CSS to enforce constraint requirements -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 580px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 260px;
+            max-height: 320px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 290px;
+            }
+        }
+        /* Custom Scrollbar for smooth sidebar/modal navigation */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Matrix view helpers */
+        .matrix-scroll {
+            position: relative;
+            overflow: auto;
+            max-height: 72vh;
+            isolation: isolate;
+        }
+        .matrix-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .matrix-sticky-head th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background-color: #1e293b;
+            color: #ffffff;
+            box-shadow: inset 0 -1px 0 #334155;
+            background-clip: padding-box;
+        }
+        .matrix-sticky-head th.matrix-aha-header {
+            background-color: #fffbeb;
+            color: #1e293b;
+            box-shadow: inset 0 -1px 0 #fde68a;
+        }
+        .matrix-row:hover {
+            background: #F8FAFC;
+        }
+        .playlist-drag-item {
+            cursor: grab;
+            transition: transform 120ms ease, opacity 120ms ease, box-shadow 120ms ease;
+        }
+        .playlist-drag-item:active {
+            cursor: grabbing;
+        }
+        .playlist-drag-item.dragging {
+            opacity: 0.45;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+        }
+        .playlist-drag-item.playlist-drop-target {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.14);
+        }
+        .playlist-placeholder {
+            min-height: 68px;
+        }
+        .playlist-drop-target {
+            border-color: #6366F1 !important;
+            background: #EEF2FF !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Slate & Indigo Warm Neutral (Slate #F8FAFC, Indigo #4F46E5 primary, Emerald/Teal highlights, Amber alerts) -->
+    <!-- Application Structure Plan: Designed as an interactive Sales Engineer Enablement & Demo Hub. Structure includes: 1) Executive Header & Quick KPI Metrics; 2) Analytical Dashboard section with Chart.js charts breaking down vignettes by Module & Value Proposition; 3) Interactive Search, Module, and Value Drivers Filter Toolbar; 4) Dynamic Grid and Matrix View toggle for the 38 Master Vignettes; 5) Custom Demo Playlist & Flow Builder allows SEs to build tailored prospect demo agendas, reorder them, and step through interactive slides; 6) Instant Copy-to-Clipboard buttons for Navigation Steps and "Aha!" Talk Tracks. Chosen to maximize SE speed during live prep and tailored call execution. -->
+    <!-- Visualization & Content Choices: 1. Module Distribution Chart -> Chart.js Doughnut Chart -> Interactive slice selection to filter vignettes by module -> Confirms clean spatial breakdown without SVG. 2. Business Value Focus Chart -> Chart.js Horizontal Bar Chart -> Interactive filtering by key prospect pain points -> Helps SEs tailor demos to prospect requirements. 3. Interactive Vignette Catalog -> Responsive HTML/CSS Cards with step-by-step sequence tags, copyable talk tracks, screenshot filename badges -> Zero SVG used. 4. Interactive Playlist Modal & Slide Deck -> Pure JS state management for step-by-step walkthroughs. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- TOP NAVIGATION & HEADER -->
+    <header class="bg-indigo-900 text-white sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <span class="bg-indigo-600 text-white text-xl p-2 rounded-lg font-bold shadow-inner">🏔️</span>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        Demo Pioneers Navigation Guide
+                    </h1>
+                    <p class="text-xs text-indigo-200"></p>
+                </div>
+            </div>
+
+            <!-- Global Action Controls -->
+            <div class="flex items-center space-x-3">
+                <button id="playlistToggleBtn" onclick="togglePlaylistDrawer()" class="relative bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-md ring-2 ring-emerald-300/40 transition flex items-center space-x-2">
+                    <span>My Demo Flow</span>
+                    <span id="playlistBadge" class="bg-white text-emerald-800 font-bold text-[10px] px-1.5 py-0.2 rounded-full">0</span>
+                </button>
+                <button onclick="toggleHelpModal()" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 text-xs font-medium px-3 py-2 rounded-lg transition">
+                    How to Use
+                </button>
+                <button onclick="scrollToSection('videoWalkthroughsSection')" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 text-xs font-medium px-3 py-2 rounded-lg transition">
+                    Video Walkthroughs
+                </button>
+                <button onclick="scrollToSection('analyticsSection')" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 text-xs font-medium px-3 py-2 rounded-lg transition">
+                    Analytics
+                </button>
+                <button onclick="scrollToSection('catalogSection')" class="bg-indigo-800 hover:bg-indigo-700 text-indigo-100 text-xs font-medium px-3 py-2 rounded-lg transition">
+                    Browse Catalog
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOW TO USE MODAL -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-indigo-900 text-white px-5 py-4 flex items-center justify-between">
+                <h3 class="text-base font-bold">How to Use the Demo Guide</h3>
+                <button onclick="toggleHelpModal()" class="text-indigo-200 hover:text-white text-2xl font-bold px-2" aria-label="Close help">&times;</button>
+            </div>
+            <div class="p-6 space-y-5 text-sm text-slate-700">
+                <div><div class="font-bold text-slate-900 mb-1">Find</div><p>Use <strong>Search, Module, or Value Driver</strong> filters to quickly narrow the vignette library.</p></div>
+                <div><div class="font-bold text-slate-900 mb-1">Preview</div><p>Click <strong>Preview</strong> to see the staged screenshot before entering the demo environment.</p></div>
+                <div><div class="font-bold text-slate-900 mb-1">Build your flow</div><p>Add individual vignettes, add your filtered results, or start with a <strong>Recommended Flow</strong>.</p></div>
+                <div><div class="font-bold text-slate-900 mb-1">Reorder</div><p>Open <strong>My Demo Flow</strong> and drag vignettes into the exact order you want to present them.</p></div>
+                <div><div class="font-bold text-slate-900 mb-1">Walk through</div><p>Launch <strong>Guided Walkthrough</strong> to move through your demo one vignette at a time.</p></div>
+                <div><div class="font-bold text-slate-900 mb-1">Make it yours</div><p>Use the prominent <strong>Show / hide</strong> controls in Grid, Matrix, My Demo Flow, or Guided Walkthrough to toggle <strong>Where it lives, Key Value, and Notes</strong> on or off. Add personal notes for transitions, discovery reminders, or your own talk track.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTRODUCTORY BANNER & HIGHLIGHTS -->
+    <section class="bg-white border-b border-slate-200 py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="max-w-4xl">
+                <h2 class="text-xl font-bold text-slate-900">Your GPS for the Demo Pioneers environment</h2>
+                <p class="mt-2 text-sm text-slate-600 leading-relaxed">
+                    Get up to speed quickly on what’s been built and how to use it. Explore screenshots, click paths, and value propositions to find the right stories for your next demo, and confidently guide prospects through the same experience when the environment is cloned for a trial.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- VIDEO WALKTHROUGHS & CLONING INSTRUCTIONS -->
+    <section id="videoWalkthroughsSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7">
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] gap-5 items-stretch">
+            <!-- Video Walkthroughs -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-900">Video Walkthroughs</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Watch a guided tour of each available Demo Pioneers module.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-px bg-slate-100">
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200 text-[10px] font-bold uppercase">Core</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Core module walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/F3lytwQ3u4iWxxmP4aldZDOnmn1N9guv6DgWDh0cgi69SMpxJVfYhVmC1JQGPyz9.2KKiV77uk3cCx7Ma?startTime=1775660603000" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200 text-[10px] font-bold uppercase">Talent</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Talent module walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/wDqCCfVAp5h9sttQnPc4oPxlp28JY166wGLvAu7c5slPHKF7CsVIpULG60dN13il.Yqbitit-taUmIZvi?startTime=1779477471000" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 text-[10px] font-bold uppercase">Hiring</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Hiring module walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/rVZP-5GQvDCLDRTucPtdnSRFiJt5goKS8adc_fpYb9knMK6i0RNUFw46sbCsmMiU.XZBUd60FfMfCXGLH" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold uppercase">Compensation</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Compensation module walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/U5MiyhRPQmWVhS50lftCgi8i5fvDKqHYAcgxf5mk_5CSXU_vQdJduUlZinbSq6ln.ObQVEeN-5Nclk4S9" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 text-[10px] font-bold uppercase whitespace-nowrap">Workforce Planning</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Workforce Planning walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/KHci4mtRWvDsy8cRs7QZS4h5qCT3Enssh4XfEco0oCrBo8EEStUarcJCitUUGvTI.MmLceyMgBfJt8vP_" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                    <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <span class="inline-flex px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold uppercase">Payroll Hub</span>
+                            <p class="text-xs text-slate-500 mt-1.5">Payroll Hub walkthrough</p>
+                        </div>
+                        <a href="https://hibob.zoom.us/rec/share/ryBcxfW_lkDx0fbojd5GYKiYK8E5Q11w4vEelj0D0aV4PsIgLCU5FimohA6gDuoJ.GOIfMD1603T61jDD" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 inline-flex items-center justify-center whitespace-nowrap min-w-[74px] gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">Watch ↗</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cloning Instructions -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col justify-between">
+                <div>
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Environment setup</div>
+                    <h3 class="text-sm font-bold text-slate-900 mt-1">Cloning Instructions</h3>
+                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Open the step-by-step SE guide for cloning and accessing a demo environment.</p>
+                </div>
+                <a href="https://docs.google.com/document/d/1-Cf7eo-QlIG-7X7lXO3RoOf4C9Kbb2XEvmHNwXqBhuY/edit?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center justify-center px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-sm transition">Open instructions ↗</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="analyticsSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900">Demo Environment Coverage Analytics</h3>
+            <p class="text-xs text-slate-500">Overview of available demo vignettes grouped by functional module and primary prospect pain point target, including the new Workforce Planning coverage.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Module Distribution Chart -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-slate-800">Vignettes by Module</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">Click a slice to filter the vignette catalog below by module.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="moduleChart"></canvas>
+                </div>
+                <div class="mt-2 text-center">
+                    <button onclick="resetModuleFilter()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Reset Module Filter</button>
+                </div>
+            </div>
+
+            <!-- Target Outcome Focus Chart -->
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-semibold text-slate-800">Value Proposition & Focus Drivers</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">Breakdown of vignettes by key differentiator (AI, Compliance, Analytics, Culture).</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="valueTagChart"></canvas>
+                </div>
+                <div class="mt-2 text-center">
+                    <button onclick="resetValueTagFilter()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Reset Value Driver Filter</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATALOG TOOLBAR & SEARCH SECTION -->
+    <section id="catalogSection" class="bg-slate-100 border-t border-b border-slate-200 py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto space-y-4">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <!-- Search Input -->
+                <div class="relative flex-grow max-w-lg">
+                    <input type="text" id="searchInput" placeholder="Search vignettes, click paths, 'Key Value' keywords, or filenames..." 
+                        class="w-full pl-3 pr-4 py-2 bg-white text-sm text-slate-800 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <!-- View Mode & Quick Controls -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-500">View:</span>
+                    <button id="viewGridBtn" onclick="setViewMode('grid')" class="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-md shadow-sm">Grid Cards</button>
+                    <button id="viewMatrixBtn" onclick="setViewMode('matrix')" class="px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-50">Matrix View</button>
+                    <button onclick="clearAllFilters()" class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-200 hover:bg-slate-300 rounded-md ml-2">Clear Filters</button>
+                </div>
+            </div>
+
+            <!-- CONTENT VISIBILITY CONTROLS -->
+            <div class="bg-white border border-indigo-200 rounded-xl px-4 py-3 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <div>
+                    <div class="text-xs font-bold text-slate-900">Show / hide vignette content</div>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Click any toggle to control what appears in Grid and Matrix views. The same choices carry into My Demo Flow and Guided Walkthrough.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" data-section-toggle="nav" data-toggle-context="light" onclick="toggleContentSection('nav')" class="section-toggle px-3 py-2 rounded-lg text-xs font-bold border transition" aria-pressed="true"></button>
+                    <button type="button" data-section-toggle="aha" data-toggle-context="light" onclick="toggleContentSection('aha')" class="section-toggle px-3 py-2 rounded-lg text-xs font-bold border transition" aria-pressed="true"></button>
+                    <button type="button" data-section-toggle="notes" data-toggle-context="light" onclick="toggleContentSection('notes')" class="section-toggle px-3 py-2 rounded-lg text-xs font-bold border transition" aria-pressed="true"></button>
+                </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
+                <span class="text-xs font-semibold text-slate-500 mr-2">Module:</span>
+                <button class="filter-mod-btn active px-3 py-1 rounded-full text-xs font-medium bg-indigo-600 text-white shadow-sm" data-module="All">All (39)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Core">Core (11)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Talent">Talent (11)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Compensation">Compensation (4)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Hiring (ATS)">Hiring (ATS) (6)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Payroll Hub">Payroll Hub (1)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Workforce Planning">Workforce Planning (6)</button>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold text-slate-500 mr-2">Value Drivers:</span>
+                <button class="filter-val-btn active px-2.5 py-0.5 rounded text-xs font-medium bg-slate-700 text-white" data-value="All">All Drivers</button>
+                <button class="filter-val-btn px-2.5 py-0.5 rounded text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-value="AI Capabilities">AI Capabilities</button>
+                <button class="filter-val-btn px-2.5 py-0.5 rounded text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-value="Global Compliance">Global Compliance</button>
+                <button class="filter-val-btn px-2.5 py-0.5 rounded text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-value="Culture">Culture & Engagement</button>
+                <button class="filter-val-btn px-2.5 py-0.5 rounded text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-value="Analytics">Analytics & Insights</button>
+                <button class="filter-val-btn px-2.5 py-0.5 rounded text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-value="Pay Parity">Pay Equity & Comp</button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div id="filterStatus" class="text-xs text-slate-500 italic pt-1">
+                    Showing all 39 vignettes
+                </div>
+                <button id="addFilteredBtn" onclick="addFilteredToPlaylist()" class="px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 rounded-lg transition">
+                    Add Selected to Demo Flow
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <div><h3 class="text-sm font-bold text-slate-900">Start with a recommended flow</h3><p class="text-[11px] text-slate-500 mt-0.5">Build a strong starting agenda in one click, then customize it.</p></div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="loadRecommendedFlow('executive')" class="px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-800">Executive HR</button>
+                <button onclick="loadRecommendedFlow('ai')" class="px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-800">AI Story</button>
+                <button onclick="loadRecommendedFlow('global')" class="px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-800">Global Compliance</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATALOG CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+        
+        <!-- GRID VIEW -->
+        <div id="gridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamic Cards Populated via JS -->
+        </div>
+
+        <!-- MATRIX VIEW -->
+        <div id="matrixContainer" class="hidden bg-white border border-slate-200 rounded-xl">
+            <div class="matrix-scroll">
+                <table class="matrix-table w-full min-w-[900px] text-left text-xs">
+                    <thead class="matrix-sticky-head">
+                        <tr class="font-semibold">
+                            <th class="p-3 w-24">Pillar</th>
+                            <th class="p-3 w-56">Module / Screen Name</th>
+                            <th id="matrixNavHeader" class="p-3 w-72">Where It Lives (Navigation Steps)</th>
+                            <th id="matrixAhaHeader" class="p-3 w-80 matrix-aha-header">Key Value</th>
+                            <th id="matrixNotesHeader" class="p-3 w-72">My Notes</th>
+                            <th class="p-3 w-28 text-center">Visual</th>
+                            <th class="p-3 w-24 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixBody" class="divide-y divide-slate-200">
+                        <!-- Dynamic Matrix Rows Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="emptyState" class="hidden text-center py-12">
+            <h4 class="mt-2 text-base font-bold text-slate-800">No matching vignettes found</h4>
+            <p class="text-xs text-slate-500 mt-1">Try resetting your search query or adjusting module filters.</p>
+            <button onclick="clearAllFilters()" class="mt-4 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg shadow">Reset All Filters</button>
+        </div>
+    </main>
+
+    <!-- BUILD & CONTRIBUTE CTA -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+        <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+            <div class="max-w-4xl">
+                <div class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2">Build the next story</div>
+                <h3 class="text-xl font-bold text-slate-900">See an opportunity? Build it.</h3>
+                <p class="mt-3 text-sm text-slate-700 leading-relaxed">Demo Pioneers is a starting point, not a finished product. As Bob evolves and new demo stories emerge, this environment should evolve with it.</p>
+                <p class="mt-3 text-sm text-slate-700 leading-relaxed">Every SE is empowered to contribute. If you have an idea that would make the environment stronger, bring it to life. Build the workflow, test the story, and capture full-screen screenshots that clearly showcase the value you’ve created.</p>
+                <p class="mt-3 text-sm font-semibold text-slate-900 leading-relaxed">This is our shared demo environment. Make it better, make it yours, and help the next SE tell an even stronger story.</p>
+                <button id="requestBuilderAccessBtn" onclick="requestBuilderAccess()" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition">
+                    Request Builder Access
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEMO FLOW / PLAYLIST DRAWER (Slide-over panel) -->
+    <div id="playlistDrawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <div class="bg-indigo-900 text-white p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div>
+                    <h3 class="text-sm font-bold">Custom Demo Agenda Builder</h3>
+                    <p class="text-[11px] text-indigo-200">Selected Vignettes Flow</p>
+                </div>
+            </div>
+            <button onclick="togglePlaylistDrawer()" class="text-indigo-200 hover:text-white text-xl font-bold px-2">&times;</button>
+        </div>
+
+        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-xs">
+            <div>
+                <span class="font-semibold text-slate-700">Total Items:</span> <span id="playlistCount" class="font-bold text-indigo-600">0</span>
+            </div>
+            <button onclick="clearPlaylist()" class="text-red-600 hover:text-red-800 font-medium">Clear All</button>
+        </div>
+
+        <div class="p-4 bg-white border-b border-slate-200">
+            <div class="mb-2">
+                <div>
+                    <div class="text-xs font-bold text-slate-900">Show / hide during your demo</div>
+                    <div class="text-[10px] text-slate-500 mt-0.5">These controls sync with Grid, Matrix, and Guided Walkthrough.</div>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" data-section-toggle="nav" data-toggle-context="light" onclick="toggleContentSection('nav')" class="section-toggle px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition" aria-pressed="true"></button>
+                <button type="button" data-section-toggle="aha" data-toggle-context="light" onclick="toggleContentSection('aha')" class="section-toggle px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition" aria-pressed="true"></button>
+                <button type="button" data-section-toggle="notes" data-toggle-context="light" onclick="toggleContentSection('notes')" class="section-toggle px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition" aria-pressed="true"></button>
+            </div>
+        </div>
+
+        <div id="playlistItems" class="p-4 flex-grow overflow-y-auto space-y-3 text-xs">
+            <!-- Dynamic Playlist Items -->
+            <div class="mb-3 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-[11px] text-indigo-700">
+                <span class="font-bold">Reorder your flow:</span> drag each vignette into the exact sequence you want to demo.
+            </div>
+            <div class="text-center text-slate-400 py-10">
+                <p>No vignettes added to your flow yet.</p>
+                <p class="text-[11px] mt-1 text-slate-400">Click <strong>"+ Add to Demo Flow"</strong> on any vignette card to assemble a prospect agenda.</p>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-slate-200 space-y-2">
+            <button onclick="startGuidedDemo()" id="startDemoBtn" disabled class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-xs font-bold rounded-lg shadow text-center transition">
+                Start Guided Walkthrough
+            </button>
+            <button onclick="copyPlaylistAgenda()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 transition">
+                Copy Demo Agenda Text
+            </button>
+        </div>
+    </div>
+
+    <!-- GUIDED DEMO WALKTHROUGH MODAL -->
+    <div id="walkthroughModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-3">
+        <div class="bg-white w-full max-w-[98vw] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[96vh]">
+            <!-- Modal Header -->
+            <div class="bg-indigo-900 text-white px-4 py-3 flex items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 min-w-0">
+                    <span id="wtStepBadge" class="bg-emerald-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-full flex-shrink-0">Step 1 of 5</span>
+                    <div class="min-w-0">
+                        <span id="wtModule" class="text-[11px] uppercase tracking-wider text-indigo-300 font-bold">Module</span>
+                        <h3 id="wtTitle" class="text-base sm:text-lg font-bold truncate">Vignette Title</h3>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="hidden xl:inline text-[10px] font-bold uppercase tracking-wider text-indigo-200">Show / hide:</span>
+                    <button id="wtPathToggle" data-section-toggle="nav" data-toggle-context="dark" onclick="toggleContentSection('nav')" class="section-toggle px-2.5 py-1.5 rounded-md text-[11px] font-bold border transition" aria-pressed="true"></button>
+                    <button id="wtAhaToggle" data-section-toggle="aha" data-toggle-context="dark" onclick="toggleContentSection('aha')" class="section-toggle px-2.5 py-1.5 rounded-md text-[11px] font-bold border transition" aria-pressed="true"></button>
+                    <button id="wtNotesToggle" data-section-toggle="notes" data-toggle-context="dark" onclick="toggleContentSection('notes')" class="section-toggle px-2.5 py-1.5 rounded-md text-[11px] font-bold border transition" aria-pressed="true"></button>
+                    <button onclick="closeGuidedDemo()" class="text-slate-300 hover:text-white text-2xl font-bold px-1" aria-label="Close guided walkthrough">&times;</button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 min-h-0 overflow-hidden grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px]">
+                <!-- Screenshot Workspace -->
+                <div class="relative min-h-[58vh] lg:min-h-0 bg-slate-950 overflow-auto flex items-center justify-center p-3 sm:p-4">
+                    <div class="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-slate-900/85 text-white rounded-lg p-1.5 shadow-lg border border-white/10">
+                        <button onclick="adjustGuidedZoom(-0.25)" class="w-8 h-8 rounded-md hover:bg-white/10 text-base font-bold" aria-label="Zoom out">−</button>
+                        <button id="wtZoomLabel" onclick="resetGuidedZoom()" class="min-w-[58px] px-2 h-8 rounded-md hover:bg-white/10 text-[11px] font-semibold" aria-label="Reset zoom">100%</button>
+                        <button onclick="adjustGuidedZoom(0.25)" class="w-8 h-8 rounded-md hover:bg-white/10 text-base font-bold" aria-label="Zoom in">+</button>
+                        <button onclick="fitGuidedImage()" class="px-2.5 h-8 rounded-md hover:bg-white/10 text-[11px] font-semibold border-l border-white/10" aria-label="Fit screenshot">Fit</button>
+                    </div>
+                    <div class="w-full h-full min-h-[58vh] lg:min-h-[74vh] flex items-center justify-center overflow-auto">
+                        <img id="wtImgTag" src="" alt="Demo Screenshot Preview" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl origin-center transition-transform duration-150 hidden" style="transform: scale(1);">
+                        <div id="wtImgFallback" class="text-slate-300 text-xs py-8 text-center max-w-sm">
+                            <div id="wtImgSpinner" class="mx-auto mb-3 h-7 w-7 rounded-full border-2 border-slate-600 border-t-white animate-spin"></div>
+                            <div id="wtImgStatusTitle" class="font-semibold text-slate-200">Loading screenshot…</div>
+                            <span class="font-mono text-[11px] text-slate-400 block mt-1" id="wtImgFallbackText">Screenshot Preview</span>
+                            <button id="wtRetryBtn" onclick="retryGuidedImage()" class="hidden mt-4 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs font-semibold">Retry screenshot</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Context Sidebar -->
+                <aside class="bg-white border-l border-slate-200 overflow-y-auto">
+                    <div class="p-4 space-y-4">
+                        <div class="border border-slate-200 rounded-xl bg-slate-50 p-3">
+                            <div class="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">Screen reference</div>
+                            <div id="wtImageName" class="font-mono text-[11px] text-indigo-700 font-bold break-words">Filename.png</div>
+                            <div class="mt-1 text-[11px] text-slate-400">Loaded directly from the GitHub image repository.</div>
+                        </div>
+
+                        <div id="wtNavSection" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2 gap-3">
+                                <span class="text-xs font-bold text-indigo-900 uppercase tracking-wide flex items-center gap-1.5">
+                                    EXACT DEMO CLICK PATH
+                                </span>
+                            </div>
+                            <ol id="wtNavList" class="list-decimal list-inside text-xs text-slate-800 space-y-2 font-medium pl-1">
+                                <!-- Navigation Steps -->
+                            </ol>
+                        </div>
+
+                        <div id="wtAhaSection" class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2 gap-3">
+                                <span class="text-xs font-bold text-amber-900 uppercase tracking-wide flex items-center gap-1.5">
+                                    KEY VALUE
+                                </span>
+                            </div>
+                            <p id="wtAhaText" class="text-xs text-slate-800 leading-relaxed italic font-serif">
+                                Key value text...
+                            </p>
+                        </div>
+
+                        <div id="wtNotesSection" class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-2 gap-3">
+                                <span class="text-xs font-bold text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
+                                    MY NOTES
+                                </span>
+                                <span class="text-[10px] text-sky-700">Saved automatically</span>
+                            </div>
+                            <textarea id="wtNotesText" rows="7" placeholder="Add your own notes for this vignette..." class="w-full resize-y rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs text-slate-800 leading-relaxed outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"></textarea>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Modal Footer Controls -->
+            <div class="bg-slate-100 p-3 border-t border-slate-200 flex items-center justify-between gap-3">
+                <button id="wtPrevBtn" onclick="prevGuidedStep()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition disabled:opacity-50">
+                    ← Previous Step
+                </button>
+                <div class="text-xs text-slate-500 font-medium text-center">
+                    Demo Progress: <span id="wtProgressText">1 / 5</span>
+                </div>
+                <button id="wtNextBtn" onclick="nextGuidedStep()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow transition">
+                    Next Step →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREENSHOT PREVIEW MODAL -->
+    <div id="imagePreviewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                <div class="min-w-0">
+                    <p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Screenshot Preview</p>
+                    <h3 id="previewImageTitle" class="text-sm font-bold truncate">Homepage 1.png</h3>
+                </div>
+                <button onclick="closeImagePreview()" class="text-slate-300 hover:text-white text-2xl font-bold px-2">&times;</button>
+            </div>
+            <div class="bg-slate-100 p-4 overflow-auto flex items-center justify-center min-h-[300px] relative">
+                <img id="previewImageTag" src="" alt="Screenshot Preview" class="max-w-full max-h-[75vh] object-contain rounded-lg bg-white shadow hidden">
+                <div id="previewImageState" class="text-center text-slate-500 py-12 max-w-sm">
+                    <div id="previewImageSpinner" class="mx-auto mb-3 h-7 w-7 rounded-full border-2 border-slate-300 border-t-indigo-600 animate-spin"></div>
+                    <div id="previewImageStatus" class="text-xs font-semibold text-slate-700">Loading screenshot…</div>
+                    <div id="previewImageFile" class="mt-1 font-mono text-[10px] text-slate-400"></div>
+                    <button id="previewRetryBtn" onclick="retryImagePreview()" class="hidden mt-4 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">Retry screenshot</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-3 rounded-lg shadow-xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-2">
+        <span id="toastMsg">Action completed successfully!</span>
+    </div>
+
+    <!-- MAIN JAVASCRIPT DATA AND LOGIC -->
+    <script>
+        // MASTER VIGNETTES DATABASE (39 Complete Vignettes)
+        const vignettesData = [
+            // --- CORE MODULE (10) ---
+            {
+                id: "core-1",
+                module: "Core",
+                title: "Homepage (View 1)",
+                screenshot: "images/Homepage 1.png",
+                nav: [
+                    "Click on Home in the left-hand navigation menu."
+                ],
+                aha: "Employees are often overwhelmed by clunky corporate portals. This screen proves Bob's homepage is highly personalized, consumer-grade, and action-oriented. Highlight the AI companion prompt alongside the 'Recently assigned' tasks and 'Quick actions' menus. It shows the prospect that Bob drives immediate employee self-service and centralizes daily HR tasks the moment they log in.",
+                tags: ["AI Capabilities", "Self-Service", "Employee Experience"]
+            },
+            {
+                id: "core-2",
+                module: "Core",
+                title: "Homepage (View 2)",
+                screenshot: "Homepage 2.png",
+                nav: [
+                    "Click on Home in the left-hand navigation menu.",
+                    "Scroll down to the bottom widgets."
+                ],
+                aha: "Remote/hybrid teams often feel disconnected. This view proves Bob acts as a virtual watercooler. Point out the interactive company poll alongside dynamic widgets like 'People out today', upcoming global events, and internal 'Careers'. It demonstrates how Bob naturally integrates culture and communication into daily work.",
+                tags: ["Culture", "Engagement", "Hybrid Work"]
+            },
+            {
+                id: "core-3",
+                module: "Core",
+                title: "Employee Profile",
+                screenshot: "Employee Profile.png",
+                nav: [
+                    "Search for and select an employee (e.g., Amy Miles) to open their profile.",
+                    "Ensure you are on the default Overview tab."
+                ],
+                aha: "HR wastes hours hunting down data. Landing here proves Bob provides a single, centralized pane of glass. Show how you can seamlessly toggle between Time off, Attendance, Performance, and Goals all from one screen, while immediately seeing core context like tenure, contract type, and reporting structure.",
+                tags: ["Centralization", "Single Source of Truth", "Analytics"]
+            },
+            {
+                id: "core-4",
+                module: "Core",
+                title: "Company Values",
+                screenshot: "Company Values.png",
+                nav: [
+                    "Click on Company in the left-hand navigation menu.",
+                    "Select Company values."
+                ],
+                aha: "Culture is often forgotten. This screen proves Bob puts culture front and center. Show the visually engaging cards for pillars like 'Bring me, win as we'. It shows how Bob operationalizes culture, clearly defining expectations and letting employees interact with values directly within the platform.",
+                tags: ["Culture", "Engagement"]
+            },
+            {
+                id: "core-5",
+                module: "Core",
+                title: "Custom Data Fields",
+                screenshot: "Custom Data Fields.png",
+                nav: [
+                    "Click on Settings (gear icon) in the bottom left.",
+                    "Navigate to Data management -> People's data fields."
+                ],
+                aha: "HR teams are forced to adapt to rigid software. This proves Bob is infinitely configurable. Highlight the highly specific, custom categories (like 'Company Equipment', 'Work Authorization', and 'ADA Requests'). It proves Bob natively stores the exact data points HR needs.",
+                tags: ["Configurability", "Global Compliance"]
+            },
+            {
+                id: "core-6",
+                module: "Core",
+                title: "Fields and Tables",
+                screenshot: "Fields and Tables.png",
+                nav: [
+                    "From the People's data fields menu, click into a specific category (e.g., Company Equipment)."
+                ],
+                aha: "Tracking multi-layered, recurring data (like laptop history) is impossible in flat HRIS fields. Show the distinction between standard 'Category Fields' and 'Category Tables'. It proves HR can track multiple historical line items for a single employee over time.",
+                tags: ["Configurability", "Analytics"]
+            },
+            {
+                id: "core-7",
+                module: "Core",
+                title: "Attendance Settings",
+                screenshot: "Attendance Settings.png",
+                nav: [
+                    "Click on Settings (gear icon) in the bottom left.",
+                    "Navigate to Attendance settings."
+                ],
+                aha: "Managing diverse labor laws is a massive liability. This view proves Bob handles global workforce management automatically. Show the diverse list of active policies (e.g., California vs. Canada Hourly). It demonstrates Bob can automatically apply exact local compliance rules based on location.",
+                tags: ["Global Compliance", "Automation"]
+            },
+            {
+                id: "core-8",
+                module: "Core",
+                title: "Time Off Policies",
+                screenshot: "Time Off Policies.png",
+                nav: [
+                    "Click on Settings (gear icon) in the bottom left.",
+                    "Navigate to Time off settings -> Policies."
+                ],
+                aha: "Global companies are bogged down administering diverse PTO rules manually. This proves Bob effortlessly scales globally. Show the sheer variety of policies—from 30 days Holiday for Germany to Unlimited PTO. HR can manage an infinite matrix of localized rules within a single framework.",
+                tags: ["Global Compliance", "Automation"]
+            },
+            {
+                id: "core-9",
+                module: "Core",
+                title: "Tasklists",
+                screenshot: "Tasklists.png",
+                nav: [
+                    "Click on Settings (gear icon) in the bottom left.",
+                    "Navigate to Task lists settings and select the General folder."
+                ],
+                aha: "HR admins waste hours coordinating routine changes via email. This proves Bob centralizes cross-departmental operations. Show the distinct workflows (like 'Equipment change') tied to specific triggers and owners, putting repetitive coordination on autopilot.",
+                tags: ["Automation", "Employee Experience"]
+            },
+            {
+                id: "core-10",
+                module: "Core",
+                title: "PIP Tasklist",
+                screenshot: "PIP Tasklist.png",
+                nav: [
+                    "From Task lists settings, open a complex workflow like PIP Action Plan."
+                ],
+                aha: "Sensitive processes often fall through the cracks, creating legal risk. This proves Bob forces accountability. Highlight the step-by-step breakdown: a 'PIP Initiation Date' automatically triggers sequential tasks (eSign, HRBP review, 30-day meeting)—guaranteeing no step is missed.",
+                tags: ["Global Compliance", "Automation"]
+            },
+
+            {
+                id: "core-11",
+                module: "Core",
+                title: "Retention Dashboard",
+                screenshot: "Retention Dashboard.png",
+                nav: [
+                    "Click on Analytics (chart icon) in the left-hand navigation menu.",
+                    "Select the Retention dashboard.",
+                    "Ensure the date range filter in the top right is set to 06/23 → 06/24."
+                ],
+                aha: "HR and executive teams typically piece together turnover metrics from disparate spreadsheets, reacting to systemic retention issues long after top talent has already left. This screen proves Bob delivers instant, executive-grade visibility into organizational health and employee longevity. The 'aha!' moment is highlighting the immediate, scannable KPIs at the top—like the 96% Retention rate and 3.4 Years Average tenure—and pairing them with the dynamic trend lines below. By pointing out the specific Attrition rate line chart dropping from a high of 7% in September 2023 down to 2.8% in June 2024, and showing how it tracks directly against the integrated 'Mercer benchmark' line, you demonstrate to the prospect that Bob effortlessly transforms raw headcount data into actionable, competitive business intelligence.",
+                tags: ["Analytics"]
+            },
+
+            // --- TALENT MODULE (11) ---
+            {
+                id: "talent-1",
+                module: "Talent",
+                title: "My Career",
+                screenshot: "_My Career_.png",
+                nav: [
+                    "Click on Talent in the left-hand navigation menu.",
+                    "Select My career. (Logged in as Amy Miles)"
+                ],
+                aha: "Employees often feel in the dark about what it takes to succeed or get promoted in their current role. This screen proves Bob gives employees complete transparency into their career path. The 'aha!' moment is showing the employee's specific job profile and the exact required skills with expected proficiency levels (e.g., 'Expert/Strategic' for Communication). Paired with their active development plan on the right, it shows how Bob empowers employees to own their growth trajectory.",
+                tags: ["Culture", "Employee Experience"]
+            },
+            {
+                id: "talent-2",
+                module: "Talent",
+                title: "1-1 Overview",
+                screenshot: "1-1 Overview.png",
+                nav: [
+                    "Click on Talent in the left-hand navigation menu.",
+                    "Select 1-1s.",
+                    "Click into the scheduled Weekly Check-in (e.g., Annabelle Merritt <> Amy Miles)."
+                ],
+                aha: "Managers and direct reports often waste 1-1s on generic status updates rather than meaningful development. This view proves Bob makes continuous performance management effortless. The 'aha!' moment is highlighting the AI-suggested action items combined with the integrated goal tracking on the right side. It shows the prospect that Bob automatically surfaces past context, linked objectives, and intelligent follow-ups to ensure every conversation is productive and accountable.",
+                tags: ["AI Capabilities", "Culture", "Employee Experience"]
+            },
+            {
+                id: "talent-3",
+                module: "Talent",
+                title: "Calibration 9-Box View",
+                screenshot: "Calibration 9-box view.png",
+                nav: [
+                    "Click on Talent in left-hand menu -> Performance or Reviews.",
+                    "Open Annabelle Merritt’s calibration worksheet.",
+                    "Ensure you are on the Box view tab."
+                ],
+                aha: "Performance calibration sessions are notoriously messy, heavily biased, and usually run out of clunky spreadsheets. This screen proves Bob digitizes and visualizes the entire process. The 'aha!' moment is dragging and dropping an employee on the 9-box grid, then clicking their name (like Amy Miles) to reveal the contextual sidebar. Showing the real-time activity feed of rating changes prevents bias and gives HR a live audit trail of how talent decisions are made.",
+                tags: ["Analytics", "Pay Parity"]
+            },
+            {
+                id: "talent-4",
+                module: "Talent",
+                title: "Calibration List View & Distribution Guidelines",
+                screenshot: "Calibration List View and Distribution Guidelines.png",
+                nav: [
+                    "From within active calibration worksheet, toggle to List view (top right corner)."
+                ],
+                aha: "HR leaders constantly battle rating inflation and struggle to enforce performance distribution curves across different managers. This view proves Bob bakes your compensation and performance strategy directly into the manager's workflow. The 'aha!' moment is the Calibration overview bell curve chart on the right. It dynamically compares the manager's actual calibrated answers against the company's mandated guidelines, instantly flagging if they are grading too leniently or harshly before reviews are finalized.",
+                tags: ["Analytics", "Pay Parity"]
+            },
+            {
+                id: "talent-5",
+                module: "Talent",
+                title: "Company Survey Dashboard",
+                screenshot: "Company Survey Dashboard.png",
+                nav: [
+                    "Click on Talent in left-hand menu -> Surveys.",
+                    "Open Annual Company Survey 2026 -> Results tab.",
+                    "Ensure you are on Summary view."
+                ],
+                aha: "Executives need a high-level overview of company culture without drowning in raw survey data. This dashboard proves Bob delivers immediate, consumable executive summaries. The 'aha!' moment is the AI summary at the top, combined with instant visibility into the Overall score (3.74), Employee NPS (-5), and the quick hit of 'Opportunities for improvement'. It shows leadership how they can get a rapid pulse on organizational health in seconds.",
+                tags: ["AI Capabilities", "Analytics", "Culture"]
+            },
+            {
+                id: "talent-6",
+                module: "Talent",
+                title: "Company Survey Heatmap",
+                screenshot: "Company Survey Heatmap.png",
+                nav: [
+                    "Click on Talent -> Surveys.",
+                    "Open Annual Company Survey 2026 -> Results tab.",
+                    "Click the Heatmap view button."
+                ],
+                aha: "HR teams spend weeks slicing and dicing survey data in Excel just to figure out where the real cultural issues live. This heatmap proves Bob delivers instant, actionable organizational intelligence. The 'aha!' moment is pointing out the stark color contrast—specifically highlighting how the Security department is deeply struggling with communication (scoring a red 2.80) compared to the rest of the company. It shows HR can pinpoint exactly which manager or department needs immediate intervention.",
+                tags: ["Analytics", "Culture"]
+            },
+            {
+                id: "talent-7",
+                module: "Talent",
+                title: "Company Survey Text Analysis",
+                screenshot: "Company Survey Text Analysis.png",
+                nav: [
+                    "From Survey Results page, click Text analysis view button."
+                ],
+                aha: "Reading through hundreds of open-ended employee comments to find a common theme is agonizing and subjective. This screen proves Bob uses AI to do the heavy lifting for the HR team. The 'aha!' moment is showing the visual sentiment bubbles (like 'Work-life balance' or 'Leadership transparency') and the AI-generated summary paragraph below. It demonstrates how Bob instantly synthesizes qualitative feedback into clear, actionable themes, saving HR days of manual reading.",
+                tags: ["AI Capabilities", "Analytics"]
+            },
+            {
+                id: "talent-8",
+                module: "Talent",
+                title: "Continuous Feedback",
+                screenshot: "Continuous Feedback.png",
+                nav: [
+                    "Click on Talent -> Feedback or Continuous Feedback.",
+                    "Ensure you are on Received tab."
+                ],
+                aha: "Annual reviews are often inaccurate because managers suffer from recency bias, forgetting the great work an employee did 9 months ago. This proves Bob captures the full picture year-round. The 'aha!' moment is the 'Key takeaways from my feedback' section powered by AI. It instantly reads months of peer feedback and extracts core Strengths and Opportunities, giving managers and employees an objective, data-driven foundation for review cycles.",
+                tags: ["AI Capabilities", "Culture"]
+            },
+            {
+                id: "talent-9",
+                module: "Talent",
+                title: "Goals Dashboard",
+                screenshot: "Goals Dashboard.png",
+                nav: [
+                    "Click on Talent -> Goals.",
+                    "Ensure you are on Browse People’s Goals default view."
+                ],
+                aha: "Leadership and HR lack a high-level pulse on whether the company is actually executing on its strategic objectives. This dashboard proves Bob makes goal tracking transparent and highly visual. The 'aha!' moment is the scannable Status distribution column. It allows a manager to instantly see who is crushing it and who is at risk (like Branden Green at 66% with red indicators), allowing them to proactively coach rather than reactively penalize at the end of the quarter.",
+                tags: ["Analytics", "Self-Service"]
+            },
+            {
+                id: "talent-10",
+                module: "Talent",
+                title: "Goal Deep Dive and Cascading",
+                screenshot: "Goal Deep Dive and Cascading Function.png",
+                nav: [
+                    "From Goals Dashboard, click into a specific goal (e.g., Exceed planned feature releases)."
+                ],
+                aha: "Employees often lack motivation because they don't see how their daily grind impacts the company's bottom line. This screen proves Bob connects individual output to company-wide vision. The 'aha!' moment is pointing out the 'Aligned to' section (highlighted in red on your screen). It shows exactly how an individual's specific Key Results (like increasing feature releases by 20%) cascade up to support a massive strategic pillar like 'Increase average contract value,' giving the employee deep purpose in their work.",
+                tags: ["Culture", "Employee Experience"]
+            },
+            {
+                id: "talent-11",
+                module: "Talent",
+                title: "IDP Overview",
+                screenshot: "IDP Overview.png",
+                nav: [
+                    "Click on Talent -> Development plans.",
+                    "Open Amy’s Product Development Leadership Plan."
+                ],
+                aha: "Employee growth plans are notoriously disjointed—usually a mix of a Google Doc, an external LMS, and verbal promises. This screen proves Bob centralizes upskilling into a single, closed-loop system. The 'aha!' moment is showing how a specific Growth Area (like Strategic Impact) is directly tied to measurable Skills, trackable Goals, and actionable Learning content (courses) all on one page. It proves to the prospect that Bob turns vague career aspirations into executed realities.",
+                tags: ["Culture", "Employee Experience"]
+            },
+
+            // --- COMPENSATION MODULE (4) ---
+            {
+                id: "comp-1",
+                module: "Compensation",
+                title: "Comp Band People Distribution",
+                screenshot: "Comp Band People Distribution.png",
+                nav: [
+                    "Click on Compensation in left-hand navigation menu.",
+                    "View specific band for Product Manager • Intermediate • Professional (IC)-2 • New York • J-000038."
+                ],
+                aha: "HR leaders often struggle to identify pay inequities hidden in rows of spreadsheet data. This view proves Bob makes pay parity visual and immediately actionable. The 'aha!' moment is the visual slider at the top showing exactly where employees fall within the $156,000 to $216,000 band. It instantly highlights outliers or clustering so HR and managers can make data-driven, equitable adjustment decisions.",
+                tags: ["Pay Parity", "Analytics", "Global Compliance"]
+            },
+            {
+                id: "comp-2",
+                module: "Compensation",
+                title: "Complex Comp Worksheet",
+                screenshot: "Complex Comp Worksheet.png",
+                nav: [
+                    "Click on Compensation in left-hand navigation menu.",
+                    "Open Annabelle Merritt’s Worksheet (Annual Adjustment Cycle: Base, Bonus, Equity)."
+                ],
+                aha: "Managing multiple compensation types across different currencies is a logistical nightmare in Excel. This screen proves Bob handles complex, global comp events effortlessly. The 'aha!' moment is showing the manager's real-time budget utilization at the top (e.g., the Combined budget USD showing a total allocated of 74,602 against a 61,716 budget) alongside multi-currency allocations (ILS, USD, CAD) in the worksheet below. It also highlights how Bob automatically flags alerts (like Amy Miles' 3 alerts or her 'Consistent Star' box location) to keep managers in bounds while they allocate.",
+                tags: ["Pay Parity", "Global Compliance", "Automation"]
+            },
+            {
+                id: "comp-3",
+                module: "Compensation",
+                title: "Simple Comp Worksheet",
+                screenshot: "Simple Comp Worksheet.png",
+                nav: [
+                    "Click on Compensation in left-hand navigation menu.",
+                    "Open Annabelle Merritt’s Worksheet (Annual Comp Event)."
+                ],
+                aha: "Managers often make salary recommendations in a vacuum, ignoring performance data and merit guidelines. This worksheet proves Bob seamlessly bridges Performance and Compensation. The 'aha!' moment is showing the 'Performance rating' column directly next to the 'Base salary - Merit Increase amount' and the visual 'Base salary band range'. This proves to the prospect that managers are armed with the context they need to reward top performers, while visual alerts (like the 1 alert flagged for both Ido Rosenberg and Alexis Miles) proactively prevent out-of-policy recommendations.",
+                tags: ["Pay Parity", "Analytics"]
+            },
+            {
+                id: "comp-4",
+                module: "Compensation",
+                title: "Merit Increase Template",
+                screenshot: "Merit Increase Template.png",
+                nav: [
+                    "Navigate to document template builder.",
+                    "Open Merit Increase template."
+                ],
+                aha: "Manually generating hundreds of custom compensation letters is a massive time sink for HR. This screen proves Bob automates the final, most tedious step of the comp cycle. The 'aha!' moment is showing the dynamic data fields (like 'New Base Salary', 'New Bonus/Commission', and 'Added Equity Grant') mapped directly into the letter from the comp event. Paired with the automated e-signature routing for the Employee, Manager, and CFO (Olive Alexander), it demonstrates a completely closed-loop, error-free compensation process from budget allocation to final signature.",
+                tags: ["Automation", "Self-Service"]
+            },
+
+            // --- HIRING ATS MODULE (6) ---
+            {
+                id: "hiring-1",
+                module: "Hiring (ATS)",
+                title: "Hiring Dashboard",
+                screenshot: "Hiring Dashboard (Job Openings).png",
+                nav: [
+                    "Click on Hiring in left-hand navigation menu.",
+                    "Ensure you are on default Job openings dashboard view."
+                ],
+                aha: "Recruiters and hiring managers need a high-level pulse on their pipeline without digging through spreadsheets. Landing on this dashboard provides an instant 'aha!' moment by showing a clean, aggregate view of all open roles. The staged data—specifically the visual 'Applications funnel' and the 'Hiring efficiency in days' metric (showing 93 days Time to Hire)—proves that Bob gives talent teams immediate, actionable insights into their hiring velocity and bottlenecks right out of the gate.",
+                tags: ["Analytics", "Automation"]
+            },
+            {
+                id: "hiring-2",
+                module: "Hiring (ATS)",
+                title: "Job Analytics (Sankey Diagram)",
+                screenshot: "Job Analytics (Sankey Diagram).png",
+                nav: [
+                    "Click on Hiring in left navigation menu.",
+                    "Click into Client Success Manager (Team Lead) open role.",
+                    "Click Job analytics button in top right corner."
+                ],
+                aha: "Talent acquisition teams constantly struggle to understand where their best candidates are coming from and exactly where they drop off in the pipeline. This Sankey diagram proves that Bob visually maps the entire candidate journey. The 'aha!' moment is showing how effortlessly you can trace source channels (like Referral internal vs. External career page) through the hiring stages (Screen, Interview, Shortlisted) to see which sources actually yield hires, empowering teams to optimize their recruiting spend.",
+                tags: ["Analytics", "Automation"]
+            },
+            {
+                id: "hiring-3",
+                module: "Hiring (ATS)",
+                title: "Candidates Section",
+                screenshot: "Candidates Section.png",
+                nav: [
+                    "Click on Hiring in left navigation.",
+                    "Click Candidates button in top right corner.",
+                    "Click on candidate Zehavi David B. from list."
+                ],
+                aha: "Recruiters waste vital time piecing together candidate context across disjointed systems. This centralized view proves Bob acts as the single source of truth for all applicant data. The staged AI 'Candidate application summary' on the right immediately shows the prospect how Bob surfaces crucial, contextual information (e.g., 'Currently pending hire... after being manually uploaded... This is their first application') so recruiters can get up to speed in seconds without reading through a messy file history.",
+                tags: ["AI Capabilities", "Self-Service"]
+            },
+            {
+                id: "hiring-4",
+                module: "Hiring (ATS)",
+                title: "New Candidate (AI Resume Matching)",
+                screenshot: "New Candidate (AI Resume Matching).png",
+                nav: [
+                    "Click on Hiring -> Client Success Manager open role.",
+                    "Select New (6) stage in top pipeline ribbon.",
+                    "Click candidate Tariq Al-Mansoor -> Overview tab."
+                ],
+                aha: "Recruiters are overwhelmed by inbound application volume and spend hours manually screening resumes against job requirements. This screen proves Bob automates the heavy lifting of initial screening. The 'aha!' moment is highlighting the AI Match score (80%) and the visual breakdown of Critical vs. Important job skills (Leadership, Customer Focus, Communication). It shows the prospect that Bob instantly prioritizes top talent, allowing recruiters to focus their human effort on the most qualified candidates.",
+                tags: ["AI Capabilities", "Automation"]
+            },
+            {
+                id: "hiring-5",
+                module: "Hiring (ATS)",
+                title: "Candidate Interview (AI Evaluation Summary)",
+                screenshot: "Candidate interview (AI Evaluation Summary).png",
+                nav: [
+                    "Click on Hiring -> Client Success Manager open role.",
+                    "Select Interview (2) stage.",
+                    "Click candidate Liam O'Connor -> Evaluation tab -> AI summary sub-tab."
+                ],
+                aha: "Hiring managers struggle to synthesize scattered, subjective interview feedback from multiple panelists. This screen proves Bob eliminates the friction of post-interview debriefs. The staged data—specifically the AI-generated summary paragraph and the 'Strengths / More to consider' breakdown—creates a powerful 'aha!' moment. It demonstrates how Bob automatically aggregates discrete scorecard ratings (like 4/5 in Client Management and 5/5 in Team Collaboration) into a cohesive, unbiased recommendation to accelerate the hiring decision.",
+                tags: ["AI Capabilities", "Analytics"]
+            },
+            {
+                id: "hiring-6",
+                module: "Hiring (ATS)",
+                title: "Offer Letter Stage",
+                screenshot: "Offer Letter Stage (Comp Band Reference).png",
+                nav: [
+                    "Click on Hiring -> Client Success Manager open role.",
+                    "Select Offer (2) stage.",
+                    "Click candidate Sofia Rodriguez -> Offer tab."
+                ],
+                aha: "Making competitive, equitable offers usually requires recruiters to toggle between the ATS and a separate compensation spreadsheet, risking pay equity violations. Landing on this offer screen proves Bob bridges ATS and Core HR seamlessly. The 'aha!' moment is the visual 'Compensation band reference' ($160,000 - $255,000) displayed directly above the candidate's $175,000 offer. This shows the prospect that recruiters can confidently make fair, data-backed offers within budget, entirely within their natural workflow.",
+                tags: ["Pay Parity", "Global Compliance"]
+            },
+
+
+            // --- WORKFORCE PLANNING MODULE (6) ---
+            {
+                id: "wfp-1",
+                module: "Workforce Planning",
+                title: "WFP Dashboard",
+                screenshot: "WFP Dashboard.png",
+                nav: [
+                    "Click on Workforce Planning in the left-hand navigation menu.",
+                    "Ensure you are on the default dashboard view."
+                ],
+                aha: "Finance and HR often operate in silos, leading to misaligned headcount budgets and spreadsheet chaos. This dashboard proves Bob gives executives a real-time, unified view of headcount versus budget. The aha! moment is the visual comparison of the $73.45M Positions budget against the $72.09M Actual filled budget. It instantly shows leadership exactly how much budget is remaining ($1.36M) and how many positions are vacant, without needing to cross-reference a single spreadsheet.",
+                tags: ["Analytics", "Automation", "Global Compliance"]
+            },
+            {
+                id: "wfp-2",
+                module: "Workforce Planning",
+                title: "WFP Event Org Chart Draft",
+                screenshot: "WFP Event Org Chart Draft .png",
+                nav: [
+                    "Click on Workforce Planning in the left-hand navigation menu.",
+                    "Open Jessica Terry’s worksheet (US Tech Team Growth Event).",
+                    "Ensure you are viewing the org chart toggle (top right of the canvas)."
+                ],
+                aha: "Reorganizing teams usually means breaking standard org charts or using messy whiteboard sketches that don't tie back to real data. This proves Bob allows leaders to sandbox organizational changes safely. The aha! moment is highlighting the visual tags (like Added, Changed, and Unchanged) and demonstrating the drag-and-drop function. Show the prospect how they can physically drag and drop people and positions across the draft org chart to see how reporting lines and structures change dynamically, all before officially publishing the event.",
+                tags: ["Analytics", "Employee Experience"]
+            },
+            {
+                id: "wfp-3",
+                module: "Workforce Planning",
+                title: "WFP Position Request Flow",
+                screenshot: "WFP Position Request Flow.png",
+                nav: [
+                    "Click on Settings (gear icon) in the bottom left.",
+                    "Navigate to Workforce planning settings.",
+                    "Select the Position request flow tab."
+                ],
+                aha: "Getting a new role approved often involves a black hole of emails, Slack messages, and manual follow-ups. This proves Bob automates and governs the entire headcount approval process. The aha! moment is showing the customizable flow templates (like Update - Position Requested or Greater than 100k Approval). It demonstrates to HR and Finance that they can build conditional routing to ensure the right stakeholders automatically approve headcount requests based on specific criteria, maintaining strict budget control.",
+                tags: ["Automation", "Global Compliance"]
+            },
+            {
+                id: "wfp-4",
+                module: "Workforce Planning",
+                title: "WFP Positions Breakdown",
+                screenshot: "WFP Positions Breakdown.png",
+                nav: [
+                    "Click on Workforce Planning in the left-hand navigation menu.",
+                    "Navigate to the Positions tab.",
+                    "Click the Group by button and set the parameters (e.g., Primary field: Positions \\ Status; Secondary field: Positions \\ Department)."
+                ],
+                aha: "Managing a massive list of positions requires slicing and dicing data that traditional HRIS systems simply aren't built for. This view proves Bob makes position management highly analytical and flexible. The aha! moment is how dynamically you can group positions (like seeing the 3 specific Tech roles nested under the 10 total Vacant roles) and immediately spotting misalignments (highlighted by the orange alert: 10 positions are not aligned). This allows HR to instantly reconcile discrepancies between planned positions and actual people.",
+                tags: ["Analytics", "Global Compliance"]
+            },
+            {
+                id: "wfp-5",
+                module: "Workforce Planning",
+                title: "WFP Requests (Status)",
+                screenshot: "WFP Requests (Status).png",
+                nav: [
+                    "Click on Workforce Planning in the left-hand navigation menu.",
+                    "Navigate to the Positions page.",
+                    "Click the Requests sub-tab."
+                ],
+                aha: "Hiring managers constantly ask HR, \"What’s the status of my headcount request?\", draining administrative time. This proves Bob provides total transparency into the requisition pipeline. The aha! moment is the centralized list showing the exact Request status (Approved, Pending, Rejected) perfectly aligned with the Current assignee and Approvers. It shows prospects that bottlenecks are immediately visible and trackable, eliminating the back-and-forth status update emails.",
+                tags: ["Analytics", "Self-Service"]
+            },
+            {
+                id: "wfp-6",
+                module: "Workforce Planning",
+                title: "WFP Worksheet Analytics",
+                screenshot: "WFP Worksheet Analytics.png",
+                nav: [
+                    "Click on Workforce Planning in the left-hand navigation menu.",
+                    "Open Jessica Terry’s worksheet (US Tech Team Growth Event).",
+                    "Ensure the right-hand analytics sidebar is expanded (using the icon in the top right)."
+                ],
+                aha: "When planning a reorg or growth event, leaders need to know the macro impact of their micro changes immediately. This proves Bob provides real-time organizational analytics during the planning phase. The aha! moment is the dynamic right-hand panel showing the Position breakdown donut chart (e.g., 3 Added, 6 Changed, 8 Unchanged) and the calculated Planned workforce growth rate (13.3%). It gives leaders instant, data-driven feedback on the scale and scope of their proposed changes before they ever submit for approval.",
+                tags: ["Analytics", "Automation"]
+            },
+            // --- PAYROLL HUB MODULE (1) ---
+            {
+                id: "payroll-1",
+                module: "Payroll Hub",
+                title: "Payroll Hub Changes Report",
+                screenshot: "Payroll Hub Changes Report.png",
+                nav: [
+                    "Click on Payroll in left-hand navigation menu.",
+                    "Select Paylocity Bi-Weekly payroll cycle.",
+                    "Set top-right view dropdown to Changes.",
+                    "Verify date range dropdown set to 08/10/2026 - 08/23/2026."
+                ],
+                aha: "Payroll teams lose hours every cycle manually reconciling HR data changes and hunting down missing information. Landing on this specific view gives you the perfect visual to prove that Bob does the heavy lifting. The staged data—specifically the red alert banner for the 10 errors and the yellow highlighted empty cells (like Angel Mclean's missing Zip Code)—creates an immediate 'aha!' moment. It shows the prospect that Bob proactively flags missing or required data before the sync happens, guaranteeing accurate payroll runs without the manual spreadsheet comparisons.",
+                tags: ["Automation", "Global Compliance", "Analytics"]
+            }
+        ];
+
+        // GLOBAL APPLICATION STATE
+        let activeModuleFilter = [];
+        let activeValueTagFilter = [];
+        let searchQuery = "";
+        let viewMode = "grid"; // 'grid' or 'matrix'
+        let demoPlaylist = []; // Array of vignette IDs
+        let currentGuidedStep = 0;
+        let guidedZoom = 1;
+        let guidedSections = { nav: true, aha: true, notes: true };
+        let demoNotes = JSON.parse(localStorage.getItem('demoPioneersNotes') || '{}');
+
+        // Chart instances
+        let moduleChartInstance = null;
+        let valueTagChartInstance = null;
+
+        // INITIALIZATION ON DOM LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            renderCatalog();
+            setViewMode("grid");
+            setupEventListeners();
+            updateSectionToggleButtons();
+            scheduleInitialImagePreload();
+        });
+
+        // CHART INITIALIZATION (Chart.js)
+        function initCharts() {
+            // Module Doughnut Chart
+            const ctxModule = document.getElementById('moduleChart').getContext('2d');
+            const moduleLabels = [...new Set(vignettesData.map(v => v.module))];
+            const moduleCounts = moduleLabels.map(label => vignettesData.filter(v => v.module === label).length);
+            const moduleColors = ['#4F46E5', '#0D9488', '#D97706', '#2563EB', '#059669', '#9333EA'];
+            moduleChartInstance = new Chart(ctxModule, {
+                type: 'doughnut',
+                data: {
+                    labels: moduleLabels,
+                    datasets: [{
+                        data: moduleCounts,
+                        backgroundColor: moduleColors.slice(0, moduleLabels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw} Vignettes`;
+                                }
+                            }
+                        }
+                    },
+                    onClick: (evt, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const clickedModule = moduleChartInstance.data.labels[index];
+                            toggleModuleFilter(clickedModule);
+                        }
+                    }
+                }
+            });
+
+            // Value Proposition Horizontal Bar Chart
+            const ctxValue = document.getElementById('valueTagChart').getContext('2d');
+            
+            // Calculate Tag frequencies
+            const tagCounts = {
+                "AI Capabilities": 0,
+                "Global Compliance": 0,
+                "Culture": 0,
+                "Analytics": 0,
+                "Pay Parity": 0,
+                "Automation": 0
+            };
+
+            vignettesData.forEach(item => {
+                item.tags.forEach(t => {
+                    if (tagCounts[t] !== undefined) tagCounts[t]++;
+                });
+            });
+
+            valueTagChartInstance = new Chart(ctxValue, {
+                type: 'bar',
+                data: {
+                    labels: ['AI Capable', 'Compliance', 'Culture', 'Analytics', 'Pay Parity', 'Automation'],
+                    datasets: [{
+                        label: 'Vignette Count',
+                        data: [
+                            tagCounts["AI Capabilities"],
+                            tagCounts["Global Compliance"],
+                            tagCounts["Culture"],
+                            tagCounts["Analytics"],
+                            tagCounts["Pay Parity"],
+                            tagCounts["Automation"]
+                        ],
+                        backgroundColor: '#6366F1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { precision: 0, font: { size: 10 } }
+                        },
+                        y: {
+                            ticks: { font: { size: 11 } }
+                        }
+                    },
+                    onClick: (evt, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const tagMap = ["AI Capabilities", "Global Compliance", "Culture", "Analytics", "Pay Parity", "Automation"];
+                            toggleValueTagFilter(tagMap[index]);
+                        }
+                    }
+                }
+            });
+        }
+
+        // EVENT LISTENERS SETUP
+        function setupEventListeners() {
+            // Search Input listener
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                renderCatalog();
+            });
+
+            // Module filter buttons
+            document.querySelectorAll('.filter-mod-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const mod = btn.getAttribute('data-module');
+                    toggleModuleFilter(mod);
+                });
+            });
+
+            // Value tag filter buttons
+            document.querySelectorAll('.filter-val-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const val = btn.getAttribute('data-value');
+                    toggleValueTagFilter(val);
+                });
+            });
+        }
+
+        // FILTER MANAGEMENT
+        function updateFilterButtonStates() {
+            document.querySelectorAll('.filter-mod-btn').forEach(b => {
+                const mod = b.getAttribute('data-module');
+                const active = mod === 'All' ? activeModuleFilter.length === 0 : activeModuleFilter.includes(mod);
+                b.classList.toggle('bg-indigo-600', active);
+                b.classList.toggle('text-white', active);
+                b.classList.toggle('shadow-sm', active);
+                b.classList.toggle('bg-white', !active);
+                b.classList.toggle('text-slate-700', !active);
+                b.classList.toggle('border-slate-300', !active);
+            });
+            document.querySelectorAll('.filter-val-btn').forEach(b => {
+                const tag = b.getAttribute('data-value');
+                const active = tag === 'All' ? activeValueTagFilter.length === 0 : activeValueTagFilter.includes(tag);
+                b.classList.toggle('bg-slate-700', active);
+                b.classList.toggle('text-white', active);
+                b.classList.toggle('bg-white', !active);
+                b.classList.toggle('text-slate-700', !active);
+                b.classList.toggle('border-slate-300', !active);
+            });
+        }
+
+        function toggleModuleFilter(mod) {
+            if (mod === 'All') {
+                activeModuleFilter = [];
+            } else {
+                activeModuleFilter = activeModuleFilter.includes(mod)
+                    ? activeModuleFilter.filter(m => m !== mod)
+                    : [...activeModuleFilter, mod];
+            }
+            updateFilterButtonStates();
+            renderCatalog();
+        }
+
+        function toggleValueTagFilter(tag) {
+            if (tag === 'All') {
+                activeValueTagFilter = [];
+            } else {
+                activeValueTagFilter = activeValueTagFilter.includes(tag)
+                    ? activeValueTagFilter.filter(t => t !== tag)
+                    : [...activeValueTagFilter, tag];
+            }
+            updateFilterButtonStates();
+            renderCatalog();
+        }
+
+        function setModuleFilter(mod) { toggleModuleFilter(mod); }
+        function setValueTagFilter(tag) { toggleValueTagFilter(tag); }
+        function resetModuleFilter() { activeModuleFilter = []; updateFilterButtonStates(); renderCatalog(); }
+        function resetValueTagFilter() { activeValueTagFilter = []; updateFilterButtonStates(); renderCatalog(); }
+
+        function clearAllFilters() {
+            searchQuery = "";
+            document.getElementById('searchInput').value = "";
+            activeModuleFilter = [];
+            activeValueTagFilter = [];
+            updateFilterButtonStates();
+            renderCatalog();
+        }
+
+        function addFilteredToPlaylist() {
+            const filtered = vignettesData.filter(item => {
+                if (activeModuleFilter.length && !activeModuleFilter.includes(item.module)) return false;
+                if (activeValueTagFilter.length && !item.tags.some(tag => activeValueTagFilter.includes(tag))) return false;
+                if (searchQuery) {
+                    const q = searchQuery;
+                    const matchTitle = item.title.toLowerCase().includes(q);
+                    const matchModule = item.module.toLowerCase().includes(q);
+                    const matchAha = item.aha.toLowerCase().includes(q);
+                    const matchFile = item.screenshot.toLowerCase().includes(q);
+                    const matchNav = item.nav.some(n => n.toLowerCase().includes(q));
+                    if (!matchTitle && !matchModule && !matchAha && !matchFile && !matchNav) return false;
+                }
+                return true;
+            });
+            filtered.forEach(item => { if (!demoPlaylist.includes(item.id)) demoPlaylist.push(item.id); });
+            updatePlaylistUI();
+            renderCatalog();
+            showToast(`${filtered.length} matching vignettes added`);
+        }
+
+        function updateSectionToggleButtons() {
+            const config = {
+                nav: { label: 'Where it lives' },
+                aha: { label: 'Key Value' },
+                notes: { label: 'Notes' }
+            };
+
+            document.querySelectorAll('[data-section-toggle]').forEach(btn => {
+                const section = btn.getAttribute('data-section-toggle');
+                const visible = !!guidedSections[section];
+                const context = btn.getAttribute('data-toggle-context') || 'light';
+                const meta = config[section] || { label: section };
+                btn.setAttribute('aria-pressed', String(visible));
+                btn.innerHTML = `${meta.label} <span class="ml-1 text-[9px] uppercase tracking-wide">${visible ? 'ON' : 'OFF'}</span>`;
+
+                if (context === 'dark') {
+                    btn.classList.toggle('bg-white', visible);
+                    btn.classList.toggle('text-indigo-900', visible);
+                    btn.classList.toggle('border-white', visible);
+                    btn.classList.toggle('bg-indigo-950/30', !visible);
+                    btn.classList.toggle('text-indigo-200', !visible);
+                    btn.classList.toggle('border-indigo-400/30', !visible);
+                } else {
+                    btn.classList.toggle('bg-indigo-600', visible);
+                    btn.classList.toggle('text-white', visible);
+                    btn.classList.toggle('border-indigo-600', visible);
+                    btn.classList.toggle('shadow-sm', visible);
+                    btn.classList.toggle('bg-white', !visible);
+                    btn.classList.toggle('text-slate-600', !visible);
+                    btn.classList.toggle('border-slate-300', !visible);
+                }
+            });
+        }
+
+        function toggleContentSection(section) {
+            if (!(section in guidedSections)) return;
+            guidedSections[section] = !guidedSections[section];
+            updateSectionToggleButtons();
+            renderCatalog();
+            applyGuidedSectionVisibility();
+        }
+
+        function saveNoteForItem(itemId, value) {
+            demoNotes[itemId] = value;
+            localStorage.setItem('demoPioneersNotes', JSON.stringify(demoNotes));
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            const gridContainer = document.getElementById('gridContainer');
+            const matrixContainer = document.getElementById('matrixContainer');
+            const btnGrid = document.getElementById('viewGridBtn');
+            const btnMatrix = document.getElementById('viewMatrixBtn');
+
+            [gridContainer, matrixContainer].forEach(el => el.classList.add('hidden'));
+            [btnGrid, btnMatrix].forEach(btn => {
+                btn.className = "px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-50";
+            });
+
+            if (mode === 'grid') {
+                gridContainer.classList.remove('hidden');
+                btnGrid.className = "px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-md shadow-sm";
+            } else {
+                matrixContainer.classList.remove('hidden');
+                btnMatrix.className = "px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-md shadow-sm";
+            }
+        }
+
+        function getBestFor(item) {
+            const audiences = [];
+            if (item.tags.includes('Analytics')) audiences.push('HR leaders & executives');
+            if (item.tags.includes('AI Capabilities')) audiences.push('AI-focused buyers');
+            if (item.tags.includes('Global Compliance')) audiences.push('global HR teams');
+            if (item.tags.includes('Pay Parity')) audiences.push('Comp & HR leaders');
+            if (item.tags.includes('Culture')) audiences.push('People & culture teams');
+            if (!audiences.length) audiences.push(item.module + ' buyers');
+            return audiences.slice(0, 2).join(' · ');
+        }
+
+        function loadRecommendedFlow(type) {
+            const pick = (fn, limit) => vignettesData.filter(fn).slice(0, limit).map(v => v.id);
+            const flows = {
+                executive: ['core-11', 'talent-5', 'wfp-1', 'comp-1'].filter(id => vignettesData.some(v => v.id === id)),
+                ai: pick(v => v.tags.includes('AI Capabilities'), 6),
+                global: pick(v => v.tags.includes('Global Compliance'), 6)
+            };
+            demoPlaylist = [...(flows[type] || [])]; updatePlaylistUI(); renderCatalog(); togglePlaylistDrawer(); showToast('Recommended flow loaded');
+        }
+
+        // RENDER VIGNETTE CATALOG (Grid & Matrix)
+        function renderCatalog() {
+            const filtered = vignettesData.filter(item => {
+                // Module filter
+                if (activeModuleFilter.length && !activeModuleFilter.includes(item.module)) return false;
+                
+                // Tag filter
+                if (activeValueTagFilter.length && !item.tags.some(tag => activeValueTagFilter.includes(tag))) return false;
+
+                // Search query
+                if (searchQuery) {
+                    const matchTitle = item.title.toLowerCase().includes(searchQuery);
+                    const matchModule = item.module.toLowerCase().includes(searchQuery);
+                    const matchAha = item.aha.toLowerCase().includes(searchQuery);
+                    const matchFile = item.screenshot.toLowerCase().includes(searchQuery);
+                    const matchNav = item.nav.some(n => n.toLowerCase().includes(searchQuery));
+                    if (!matchTitle && !matchModule && !matchAha && !matchFile && !matchNav) return false;
+                }
+
+                return true;
+            });
+
+            // Update Status text
+            const filterParts = [];
+            if (activeModuleFilter.length) filterParts.push(activeModuleFilter.join(' + '));
+            if (activeValueTagFilter.length) filterParts.push(activeValueTagFilter.join(' + '));
+            document.getElementById('filterStatus').textContent = `Showing ${filtered.length} of ${vignettesData.length} vignettes${filterParts.length ? ' · ' + filterParts.join(' · ') : ''}`;
+            const addBtn = document.getElementById('addFilteredBtn');
+            if (addBtn) { addBtn.textContent = filtered.length ? `Add ${filtered.length} Selected to Demo Flow` : 'Add Selected to Demo Flow'; addBtn.disabled = filtered.length === 0; addBtn.classList.toggle('opacity-50', filtered.length === 0); }
+
+            const matrixNavHeader = document.getElementById('matrixNavHeader');
+            const matrixAhaHeader = document.getElementById('matrixAhaHeader');
+            const matrixNotesHeader = document.getElementById('matrixNotesHeader');
+            if (matrixNavHeader) matrixNavHeader.classList.toggle('hidden', !guidedSections.nav);
+            if (matrixAhaHeader) matrixAhaHeader.classList.toggle('hidden', !guidedSections.aha);
+            if (matrixNotesHeader) matrixNotesHeader.classList.toggle('hidden', !guidedSections.notes);
+
+            const emptyState = document.getElementById('emptyState');
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('gridContainer').innerHTML = "";
+                document.getElementById('matrixBody').innerHTML = "";
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // 1. Render Grid Cards
+            const gridContainer = document.getElementById('gridContainer');
+            gridContainer.innerHTML = filtered.map(item => {
+                const inPlaylist = demoPlaylist.includes(item.id);
+                const badgeColor = getModuleBadgeColor(item.module);
+
+                const navListHtml = item.nav.map((step, idx) => `
+                    <li class="flex items-start space-x-1.5">
+                        <span class="bg-indigo-100 text-indigo-700 rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">${idx + 1}</span>
+                        <span>${escapeHtml(step)}</span>
+                    </li>
+                `).join('');
+
+                const tagsHtml = item.tags.map(t => `
+                    <span class="bg-slate-100 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded border border-slate-200">${escapeHtml(t)}</span>
+                `).join('');
+
+                return `
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+                        <!-- Card Header -->
+                        <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${badgeColor}">
+                                    ${escapeHtml(item.module)}
+                                </span>
+                                <span class="text-[10px] font-mono text-slate-400 flex items-center gap-1" title="Screenshot image file">
+                                    ${escapeHtml(item.screenshot)}
+                                </span>
+                            </div>
+                            <div class="flex items-start justify-between gap-2">
+                                <h4 class="text-sm font-bold text-slate-900">${escapeHtml(item.title)}</h4>
+                                
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-1"><span class="font-bold text-slate-600">Best for:</span> ${escapeHtml(getBestFor(item))}</div>
+                            <div class="flex flex-wrap gap-1 mt-2">
+                                ${tagsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 space-y-3 flex-grow text-xs">
+                            <!-- Navigation Path -->
+                            ${guidedSections.nav ? `<div class="bg-indigo-50/60 border border-indigo-100 rounded-lg p-2.5">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
+                                        Where it Lives
+                                    </span>
+                                </div>
+                                <ul class="space-y-1 text-slate-700">
+                                    ${navListHtml}
+                                </ul>
+                            </div>` : ''}
+
+                            <!-- What it proves / Aha -->
+                            ${guidedSections.aha ? `<div class="bg-amber-50/70 border border-amber-100 rounded-lg p-2.5">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center gap-1">
+                                        Key Value
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-slate-700 leading-relaxed font-serif italic">
+                                    "${escapeHtml(item.aha)}"
+                                </p>
+                            </div>` : ''}
+
+                            <!-- Personal Notes -->
+                            ${guidedSections.notes ? `<div class="bg-sky-50/80 border border-sky-200 rounded-lg p-2.5">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-[10px] font-bold text-sky-900 uppercase tracking-wider">My Notes</span>
+                                    <span class="text-[9px] text-sky-700">Saved automatically</span>
+                                </div>
+                                <textarea rows="3" oninput="saveNoteForItem('${escapeJs(item.id)}', this.value)" placeholder="Add your own notes..." class="w-full resize-y rounded-md border border-sky-200 bg-white px-2.5 py-2 text-[11px] text-slate-700 leading-relaxed outline-none focus:ring-2 focus:ring-sky-300">${escapeHtml(demoNotes[item.id] || '')}</textarea>
+                            </div>` : ''}
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1">
+                                <button onclick="openImagePreview('${escapeJs(item.id)}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold px-2.5 py-1.5 rounded-lg">Preview</button>
+                                <button onclick="openSingleModal('${escapeJs(item.id)}')" class="text-[11px] text-slate-500 hover:text-indigo-700 font-medium px-1.5 py-1">Full View</button>
+                            </div>
+                            <button onclick="togglePlaylist('${item.id}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${inPlaylist ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'}">
+                                ${inPlaylist ? '✓ In Demo Flow' : '+ Add to Demo Flow'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 2. Render Matrix View (high-density SE selection view)
+            const matrixBody = document.getElementById('matrixBody');
+            matrixBody.innerHTML = filtered.map((item) => {
+                const inPlaylist = demoPlaylist.includes(item.id);
+                const badgeColor = getModuleBadgeColor(item.module);
+                const navSummary = item.nav.map(step => `<div class="mb-1 flex items-start gap-1.5"><span class="text-indigo-500">•</span><span>${escapeHtml(step)}</span></div>`).join('');
+                return `
+                    <tr class="matrix-row align-top">
+                        <td class="p-3">
+                            <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${badgeColor}">${escapeHtml(item.module)}</span>
+                        </td>
+                        <td class="p-3">
+                            <div class="flex items-start justify-between gap-2"><div class="font-bold text-slate-900 text-sm">${escapeHtml(item.title)}</div></div>
+                            <div class="text-[10px] text-slate-500 mt-1"><span class="font-bold">Best for:</span> ${escapeHtml(getBestFor(item))}</div>
+                            <div class="mt-1 flex flex-wrap gap-1">${item.tags.map(t => `<span class="bg-slate-100 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded border border-slate-200">${escapeHtml(t)}</span>`).join('')}</div>
+                        </td>
+                        <td class="p-3 text-slate-600 leading-relaxed ${guidedSections.nav ? '' : 'hidden'}">${navSummary}</td>
+                        <td class="p-3 bg-amber-50/70 text-slate-800 leading-relaxed font-medium ${guidedSections.aha ? '' : 'hidden'}">${escapeHtml(item.aha)}</td>
+                        <td class="p-3 bg-sky-50/60 align-top ${guidedSections.notes ? '' : 'hidden'}">
+                            <textarea rows="4" oninput="saveNoteForItem('${escapeJs(item.id)}', this.value)" placeholder="Add notes..." class="w-full min-w-[220px] resize-y rounded-md border border-sky-200 bg-white px-2 py-1.5 text-[11px] text-slate-700 leading-relaxed outline-none focus:ring-2 focus:ring-sky-300">${escapeHtml(demoNotes[item.id] || '')}</textarea>
+                        </td>
+                        <td class="p-3 text-center align-middle">
+                            <button onclick="openImagePreview('${escapeJs(item.id)}')" class="inline-flex px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold">Preview</button>
+                        </td>
+                        <td class="p-3 text-center align-middle">
+                            <button onclick="togglePlaylist('${escapeJs(item.id)}')" class="px-2.5 py-2 rounded-lg text-[11px] font-semibold ${inPlaylist ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'}">
+                                ${inPlaylist ? '✓ Added' : '+ Add'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/brendenmcgarrity/Demo-Pioneers-Vignettes/main/images";
+        const IMAGE_MAX_RETRIES = 2;
+        const IMAGE_RETRY_DELAYS = [650, 1500];
+        const imagePreloadCache = new Map();
+        let activePreviewItemId = null;
+        let activeGuidedImageId = null;
+
+        const MODULE_IMAGE_FOLDERS = {
+            "Core": "core",
+            "Talent": "talent",
+            "Compensation": "comp",
+            "Hiring (ATS)": "hiring",
+            "Payroll Hub": "pr hub",
+            "Workforce Planning": "wfp"
+        };
+
+        function getCleanImageName(filename) {
+            let cleanName = String(filename || '').replace(/^images\/(?:[^/]+\/)?/i, '');
+            return cleanName
+                .replace('Comp Band People Distribution_2.png', 'Comp Band People Distribution.png')
+                .replace('Complex Comp Worksheet_2.png', 'Complex Comp Worksheet.png')
+                .replace('Simple Comp Worksheet_2.png', 'Simple Comp Worksheet.png')
+                .replace('Merit Increase Template_2.png', 'Merit Increase Template.png');
+        }
+
+        function getImageCandidates(filename, module) {
+            if (!filename) return [];
+            if (/^(https?:|data:)/i.test(filename)) return [filename];
+
+            const cleanName = getCleanImageName(filename);
+            const folder = MODULE_IMAGE_FOLDERS[module] || '';
+            const encodedName = encodeURIComponent(cleanName);
+            const rawUrl = folder
+                ? `${GITHUB_RAW_BASE}/${encodeURIComponent(folder)}/${encodedName}`
+                : `${GITHUB_RAW_BASE}/${encodedName.replace(/%2F/gi, '/')}`;
+
+            const candidates = [];
+            // When the guide is published with GitHub Pages in the same repository,
+            // use same-origin assets first. This avoids raw.githubusercontent.com for normal site traffic.
+            if (window.location.protocol !== 'file:' && window.location.hostname.endsWith('github.io')) {
+                const relativePath = folder
+                    ? `images/${encodeURIComponent(folder)}/${encodedName}`
+                    : `images/${encodedName.replace(/%2F/gi, '/')}`;
+                candidates.push(new URL(relativePath, window.location.href).href);
+            }
+            candidates.push(rawUrl);
+            return [...new Set(candidates)];
+        }
+
+        function normalizeImagePath(filename, module) {
+            return getImageCandidates(filename, module)[0] || '';
+        }
+
+        function cacheBust(url, attempt) {
+            if (!attempt || /^data:/i.test(url)) return url;
+            const separator = url.includes('?') ? '&' : '?';
+            return `${url}${separator}retry=${attempt}-${Date.now()}`;
+        }
+
+        function loadImageResilient(img, item, handlers = {}) {
+            if (!img || !item) return;
+            const candidates = getImageCandidates(item.screenshot, item.module);
+            if (!candidates.length) {
+                handlers.onError?.();
+                return;
+            }
+
+            const token = `${item.id}-${Date.now()}-${Math.random()}`;
+            img.dataset.loadToken = token;
+            let candidateIndex = 0;
+            let retryIndex = 0;
+            handlers.onStart?.();
+
+            const attemptLoad = () => {
+                if (img.dataset.loadToken !== token) return;
+                const baseUrl = candidates[candidateIndex];
+                const src = cacheBust(baseUrl, retryIndex);
+
+                img.onload = () => {
+                    if (img.dataset.loadToken !== token) return;
+                    handlers.onLoad?.(baseUrl);
+                };
+                img.onerror = () => {
+                    if (img.dataset.loadToken !== token) return;
+
+                    if (candidateIndex < candidates.length - 1) {
+                        candidateIndex += 1;
+                        retryIndex = 0;
+                        setTimeout(attemptLoad, 250);
+                        return;
+                    }
+
+                    if (retryIndex < IMAGE_MAX_RETRIES) {
+                        const delay = IMAGE_RETRY_DELAYS[retryIndex] || 1500;
+                        retryIndex += 1;
+                        handlers.onRetry?.(retryIndex);
+                        setTimeout(attemptLoad, delay);
+                        return;
+                    }
+
+                    handlers.onError?.();
+                };
+
+                img.src = src;
+            };
+
+            attemptLoad();
+        }
+
+        function preloadVignetteImage(item) {
+            if (!item) return Promise.resolve(false);
+            const key = `${item.module}|${item.screenshot}`;
+            if (imagePreloadCache.has(key)) return imagePreloadCache.get(key);
+
+            const promise = new Promise(resolve => {
+                const img = new Image();
+                loadImageResilient(img, item, {
+                    onLoad: () => resolve(true),
+                    onError: () => resolve(false)
+                });
+            });
+            imagePreloadCache.set(key, promise);
+            return promise;
+        }
+
+        function scheduleInitialImagePreload() {
+            const run = () => {
+                // Warm a small number of likely first-use screenshots without flooding GitHub.
+                vignettesData.slice(0, 4).forEach((item, index) => {
+                    setTimeout(() => preloadVignetteImage(item), index * 450);
+                });
+            };
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(run, { timeout: 1800 });
+            } else {
+                setTimeout(run, 1200);
+            }
+        }
+
+        function setPreviewLoadingState(item, message = 'Loading screenshot…') {
+            const img = document.getElementById('previewImageTag');
+            const state = document.getElementById('previewImageState');
+            const spinner = document.getElementById('previewImageSpinner');
+            const retry = document.getElementById('previewRetryBtn');
+            img.classList.add('hidden');
+            state.classList.remove('hidden');
+            spinner.classList.remove('hidden');
+            retry.classList.add('hidden');
+            document.getElementById('previewImageStatus').textContent = message;
+            document.getElementById('previewImageFile').textContent = item.screenshot;
+        }
+
+        function loadPreviewImage(item) {
+            const img = document.getElementById('previewImageTag');
+            const state = document.getElementById('previewImageState');
+            const spinner = document.getElementById('previewImageSpinner');
+            const retry = document.getElementById('previewRetryBtn');
+
+            loadImageResilient(img, item, {
+                onStart: () => setPreviewLoadingState(item),
+                onRetry: () => setPreviewLoadingState(item, 'Still loading… retrying automatically.'),
+                onLoad: () => {
+                    img.classList.remove('hidden');
+                    state.classList.add('hidden');
+                },
+                onError: () => {
+                    img.classList.add('hidden');
+                    state.classList.remove('hidden');
+                    spinner.classList.add('hidden');
+                    retry.classList.remove('hidden');
+                    document.getElementById('previewImageStatus').textContent = 'Screenshot could not be loaded.';
+                }
+            });
+        }
+
+        function openImagePreview(id) {
+            const item = vignettesData.find(v => v.id === id);
+            if (!item) return;
+            activePreviewItemId = id;
+            const modal = document.getElementById('imagePreviewModal');
+            document.getElementById('previewImageTitle').textContent = `${item.title} • ${item.screenshot}`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            loadPreviewImage(item);
+
+            const currentIndex = vignettesData.findIndex(v => v.id === id);
+            [1, 2].forEach(offset => preloadVignetteImage(vignettesData[currentIndex + offset]));
+        }
+
+        function retryImagePreview() {
+            const item = vignettesData.find(v => v.id === activePreviewItemId);
+            if (item) loadPreviewImage(item);
+        }
+
+        function closeImagePreview() {
+            const modal = document.getElementById('imagePreviewModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') { closeImagePreview(); const help = document.getElementById('helpModal'); if (help) { help.classList.add('hidden'); help.classList.remove('flex'); } }
+        });
+
+        // MODULE BADGE COLOR HELPER
+        function getModuleBadgeColor(mod) {
+            switch(mod) {
+                case 'Core': return 'bg-indigo-100 text-indigo-800 border border-indigo-200';
+                case 'Talent': return 'bg-teal-100 text-teal-800 border border-teal-200';
+                case 'Compensation': return 'bg-amber-100 text-amber-800 border border-amber-200';
+                case 'Hiring (ATS)': return 'bg-blue-100 text-blue-800 border border-blue-200';
+                case 'Payroll Hub': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                case 'Workforce Planning': return 'bg-purple-100 text-purple-800 border border-purple-200';
+                default: return 'bg-slate-100 text-slate-800';
+            }
+        }
+
+        // DEMO FLOW / PLAYLIST MANAGEMENT
+        function togglePlaylist(id) {
+            const idx = demoPlaylist.indexOf(id);
+            if (idx > -1) {
+                demoPlaylist.splice(idx, 1);
+                showToast("Removed from Demo Flow");
+            } else {
+                demoPlaylist.push(id);
+                showToast("Added to Custom Demo Flow!");
+            }
+            updatePlaylistUI();
+            renderCatalog();
+        }
+
+        function clearPlaylist() {
+            demoPlaylist = [];
+            updatePlaylistUI();
+            renderCatalog();
+            showToast("Demo Flow cleared");
+        }
+
+        function updatePlaylistUI() {
+            const countEl = document.getElementById('playlistCount');
+            const badgeEl = document.getElementById('playlistBadge');
+            const container = document.getElementById('playlistItems');
+            const startBtn = document.getElementById('startDemoBtn');
+
+            const total = demoPlaylist.length;
+            countEl.textContent = total;
+            badgeEl.textContent = total;
+
+            if (total === 0) {
+                startBtn.disabled = true;
+                container.innerHTML = `
+                    <div class="text-center text-slate-400 py-10">
+                        <p>No vignettes added to your flow yet.</p>
+                        <p class="text-[11px] mt-1 text-slate-400">Click <strong>"+ Add to Demo Flow"</strong> on any vignette card to assemble a prospect agenda.</p>
+                    </div>`;
+                return;
+            }
+
+            startBtn.disabled = false;
+            container.innerHTML = `
+                <div class="space-y-3" id="playlistList" ondragover="handlePlaylistListDragOver(event)" ondrop="handlePlaylistDrop(event)">
+                    ${demoPlaylist.map((id, index) => {
+                        const item = vignettesData.find(v => v.id === id);
+                        if (!item) return '';
+                        return `
+                            <div class="playlist-drag-item bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center justify-between gap-2 transition-all duration-150" draggable="true" data-playlist-id="${escapeHtml(item.id)}"
+                                 ondragstart="handlePlaylistDragStart(event, '${escapeJs(item.id)}')"
+                                 ondragend="handlePlaylistDragEnd(event)">
+                                <div class="flex items-center gap-2 overflow-hidden min-w-0">
+                                    <span class="text-slate-300 text-lg leading-none cursor-grab" title="Drag to reorder">⠿</span>
+                                    <span class="bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0">${index + 1}</span>
+                                    <div class="truncate">
+                                        <span class="text-[10px] font-bold uppercase text-slate-400 block">${escapeHtml(item.module)}</span>
+                                        <h5 class="text-xs font-bold text-slate-800 truncate">${escapeHtml(item.title)}</h5>
+                                    </div>
+                                </div>
+                                <button onclick="togglePlaylist('${escapeJs(item.id)}')" class="text-slate-400 hover:text-red-600 text-base font-bold px-1 ml-2" title="Remove">&times;</button>
+                            </div>`;
+                    }).join('')}
+                </div>`;
+        }
+
+        let draggedPlaylistId = null;
+        let playlistPlaceholder = null;
+
+        function ensurePlaylistPlaceholder() {
+            if (playlistPlaceholder) return playlistPlaceholder;
+            const el = document.createElement('div');
+            el.className = 'playlist-placeholder rounded-lg border-2 border-dashed border-indigo-400 bg-indigo-50/70';
+            el.style.height = '68px';
+            el.setAttribute('aria-hidden', 'true');
+            playlistPlaceholder = el;
+            return el;
+        }
+
+        function handlePlaylistDragStart(event, id) {
+            draggedPlaylistId = id;
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', id);
+            event.currentTarget.classList.add('dragging', 'opacity-40');
+            requestAnimationFrame(() => {
+                const placeholder = ensurePlaylistPlaceholder();
+                placeholder.style.height = `${event.currentTarget.getBoundingClientRect().height}px`;
+            });
+        }
+
+        function handlePlaylistListDragOver(event) {
+            event.preventDefault();
+            if (!draggedPlaylistId) return;
+            event.dataTransfer.dropEffect = 'move';
+
+            const list = document.getElementById('playlistList');
+            if (!list) return;
+
+            const items = [...list.querySelectorAll('.playlist-drag-item')].filter(el => el.dataset.playlistId !== draggedPlaylistId);
+            const placeholder = ensurePlaylistPlaceholder();
+
+            if (items.length === 0) {
+                if (placeholder.parentElement !== list) list.appendChild(placeholder);
+                return;
+            }
+
+            let insertBefore = null;
+            for (const item of items) {
+                const rect = item.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                if (event.clientY < midpoint) {
+                    insertBefore = item;
+                    break;
+                }
+            }
+
+            if (insertBefore) {
+                if (insertBefore.previousElementSibling !== placeholder) {
+                    list.insertBefore(placeholder, insertBefore);
+                }
+            } else {
+                if (list.lastElementChild !== placeholder) {
+                    list.appendChild(placeholder);
+                }
+            }
+        }
+
+        function handlePlaylistDrop(event) {
+            event.preventDefault();
+            if (!draggedPlaylistId) return;
+
+            const list = document.getElementById('playlistList');
+            const placeholder = playlistPlaceholder;
+            if (!list || !placeholder || placeholder.parentElement !== list) {
+                handlePlaylistDragEnd(event);
+                return;
+            }
+
+            const orderedIds = [...list.children]
+                .filter(el => el.classList.contains('playlist-drag-item'))
+                .map(el => el.dataset.playlistId);
+
+            const placeholderIndex = [...list.children].indexOf(placeholder);
+            const remaining = demoPlaylist.filter(id => id !== draggedPlaylistId);
+            const nextItem = [...list.children]
+                .slice(placeholderIndex + 1)
+                .find(el => el.classList.contains('playlist-drag-item'));
+
+            if (nextItem) {
+                const targetId = nextItem.dataset.playlistId;
+                const insertAt = remaining.indexOf(targetId);
+                remaining.splice(insertAt < 0 ? remaining.length : insertAt, 0, draggedPlaylistId);
+            } else {
+                remaining.push(draggedPlaylistId);
+            }
+
+            demoPlaylist = remaining;
+            draggedPlaylistId = null;
+            if (placeholder.parentElement) placeholder.remove();
+            playlistPlaceholder = null;
+            updatePlaylistUI();
+            renderCatalog();
+        }
+
+        function handlePlaylistDragEnd(event) {
+            if (event.currentTarget) {
+                event.currentTarget.classList.remove('dragging', 'opacity-40');
+            }
+            if (playlistPlaceholder && playlistPlaceholder.parentElement) {
+                playlistPlaceholder.remove();
+            }
+            playlistPlaceholder = null;
+            draggedPlaylistId = null;
+        }
+
+        function togglePlaylistDrawer() {
+            const drawer = document.getElementById('playlistDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        function copyPlaylistAgenda() {
+            if (demoPlaylist.length === 0) {
+                showToast("Your flow is empty!");
+                return;
+            }
+
+            let text = "DEMO PIONEERS CUSTOM PROSPECT DEMO AGENDA\n";
+            text += "=========================================\n\n";
+
+            demoPlaylist.forEach((id, idx) => {
+                const item = vignettesData.find(v => v.id === id);
+                if (item) {
+                    text += `${idx + 1}. [${item.module.toUpperCase()}] ${item.title}\n`;
+                    text += `   Path: ${item.nav.join(' -> ')}\n`;
+                    text += `   Key Value: ${item.aha}\n\n`;
+                }
+            });
+
+            copyText(text);
+        }
+
+        // GUIDED DEMO WALKTHROUGH MODAL LOGIC
+        function startGuidedDemo() {
+            if (demoPlaylist.length === 0) return;
+            currentGuidedStep = 0;
+            renderGuidedModal();
+            document.getElementById('walkthroughModal').classList.remove('hidden');
+        }
+
+        function openSingleModal(id) {
+            demoPlaylist = [id];
+            updatePlaylistUI();
+            currentGuidedStep = 0;
+            renderGuidedModal();
+            document.getElementById('walkthroughModal').classList.remove('hidden');
+        }
+
+        function closeGuidedDemo() {
+            document.getElementById('walkthroughModal').classList.add('hidden');
+        }
+
+        function applyGuidedZoom() {
+            const imgTag = document.getElementById('wtImgTag');
+            const zoomLabel = document.getElementById('wtZoomLabel');
+            if (!imgTag) return;
+            imgTag.style.transform = `scale(${guidedZoom})`;
+            if (zoomLabel) zoomLabel.textContent = `${Math.round(guidedZoom * 100)}%`;
+        }
+
+        function adjustGuidedZoom(delta) {
+            guidedZoom = Math.min(3, Math.max(0.75, guidedZoom + delta));
+            applyGuidedZoom();
+        }
+
+        function resetGuidedZoom() {
+            guidedZoom = 1;
+            applyGuidedZoom();
+        }
+
+        function fitGuidedImage() {
+            guidedZoom = 1;
+            applyGuidedZoom();
+        }
+
+        function toggleGuidedSection(section) {
+            toggleContentSection(section);
+        }
+
+        function applyGuidedSectionVisibility() {
+            const sectionMap = { nav: 'wtNavSection', aha: 'wtAhaSection', notes: 'wtNotesSection' };
+            ['nav', 'aha', 'notes'].forEach(section => {
+                const sectionEl = document.getElementById(sectionMap[section]);
+                if (sectionEl) sectionEl.classList.toggle('hidden', !guidedSections[section]);
+            });
+            updateSectionToggleButtons();
+        }
+
+        function saveCurrentGuidedNote() {
+            const item = vignettesData.find(v => v.id === demoPlaylist[currentGuidedStep]);
+            const notesEl = document.getElementById('wtNotesText');
+            if (!item || !notesEl) return;
+            demoNotes[item.id] = notesEl.value;
+            localStorage.setItem('demoPioneersNotes', JSON.stringify(demoNotes));
+        }
+
+        function requestBuilderAccess() {
+            showToast('Add your internal Request Builder URL to this button.');
+        }
+
+        function setGuidedImageState(item, mode, message) {
+            const img = document.getElementById('wtImgTag');
+            const fallback = document.getElementById('wtImgFallback');
+            const spinner = document.getElementById('wtImgSpinner');
+            const retry = document.getElementById('wtRetryBtn');
+            const title = document.getElementById('wtImgStatusTitle');
+            document.getElementById('wtImgFallbackText').textContent = item.screenshot;
+
+            if (mode === 'loaded') {
+                img.classList.remove('hidden');
+                fallback.classList.add('hidden');
+                fitGuidedImage();
+                return;
+            }
+
+            img.classList.add('hidden');
+            fallback.classList.remove('hidden');
+            title.textContent = message;
+            spinner.classList.toggle('hidden', mode === 'error');
+            retry.classList.toggle('hidden', mode !== 'error');
+        }
+
+        function loadGuidedImage(item) {
+            activeGuidedImageId = item.id;
+            const imgTag = document.getElementById('wtImgTag');
+            loadImageResilient(imgTag, item, {
+                onStart: () => setGuidedImageState(item, 'loading', 'Loading screenshot…'),
+                onRetry: () => setGuidedImageState(item, 'loading', 'Still loading… retrying automatically.'),
+                onLoad: () => setGuidedImageState(item, 'loaded', ''),
+                onError: () => setGuidedImageState(item, 'error', 'Screenshot could not be loaded.')
+            });
+        }
+
+        function retryGuidedImage() {
+            const item = vignettesData.find(v => v.id === activeGuidedImageId);
+            if (item) loadGuidedImage(item);
+        }
+
+        function renderGuidedModal() {
+            if (demoPlaylist.length === 0) return;
+
+            const id = demoPlaylist[currentGuidedStep];
+            const item = vignettesData.find(v => v.id === id);
+            if (!item) return;
+
+            document.getElementById('wtStepBadge').textContent = `Step ${currentGuidedStep + 1} of ${demoPlaylist.length}`;
+            document.getElementById('wtModule').textContent = item.module;
+            document.getElementById('wtTitle').textContent = item.title;
+
+            // Nav steps
+            const navOl = document.getElementById('wtNavList');
+            navOl.innerHTML = item.nav.map(step => `<li class="leading-relaxed">${escapeHtml(step)}</li>`).join('');
+
+            // Aha text
+            document.getElementById('wtAhaText').textContent = `"${item.aha}"`;
+
+            // SE notes
+            const notesEl = document.getElementById('wtNotesText');
+            notesEl.value = demoNotes[item.id] || '';
+            notesEl.oninput = saveCurrentGuidedNote;
+
+            // Image tag handling
+            document.getElementById('wtImageName').textContent = item.screenshot;
+            loadGuidedImage(item);
+            resetGuidedZoom();
+            applyGuidedSectionVisibility();
+
+            // Warm the next two walkthrough screenshots while the SE is presenting this step.
+            [1, 2].forEach(offset => {
+                const nextId = demoPlaylist[currentGuidedStep + offset];
+                if (!nextId) return;
+                preloadVignetteImage(vignettesData.find(v => v.id === nextId));
+            });
+
+            // Progress text
+            document.getElementById('wtProgressText').textContent = `${currentGuidedStep + 1} / ${demoPlaylist.length}`;
+
+            // Buttons state
+            document.getElementById('wtPrevBtn').disabled = (currentGuidedStep === 0);
+            const nextBtn = document.getElementById('wtNextBtn');
+            if (currentGuidedStep === demoPlaylist.length - 1) {
+                nextBtn.textContent = "Finish Walkthrough";
+            } else {
+                nextBtn.textContent = "Next Step →";
+            }
+        }
+
+        function nextGuidedStep() {
+            if (currentGuidedStep < demoPlaylist.length - 1) {
+                currentGuidedStep++;
+                renderGuidedModal();
+            } else {
+                closeGuidedDemo();
+                showToast("Guided walkthrough complete!");
+            }
+        }
+
+        function prevGuidedStep() {
+            if (currentGuidedStep > 0) {
+                currentGuidedStep--;
+                renderGuidedModal();
+            }
+        }
+
+        function copyCurrentWTNav() {
+            const item = vignettesData.find(v => v.id === demoPlaylist[currentGuidedStep]);
+            if (item) copyText(item.nav.join(' -> '));
+        }
+
+        function copyCurrentWTAha() {
+            const item = vignettesData.find(v => v.id === demoPlaylist[currentGuidedStep]);
+            if (item) copyText(item.aha);
+        }
+
+        // UTILITY FUNCTIONS
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Copied to clipboard!");
+            }).catch(err => {
+                showToast("Failed to copy");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function toggleHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function escapeJs(str) {
+            if (!str) return '';
+            return str
+                .replace(/\\/g, "\\\\")
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, "\\n");
+        }
+    </script>
+</body>
+</html>
