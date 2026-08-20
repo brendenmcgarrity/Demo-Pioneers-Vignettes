@@ -98,7 +98,7 @@
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
     <!-- Chosen Palette: Slate & Indigo Warm Neutral (Slate #F8FAFC, Indigo #4F46E5 primary, Emerald/Teal highlights, Amber alerts) -->
-    <!-- Application Structure Plan: Designed as an interactive Sales Engineer Enablement & Demo Hub. Structure includes: 1) Executive Header & Quick KPI Metrics; 2) Analytical Dashboard section with Chart.js charts breaking down vignettes by Module & Value Proposition; 3) Interactive Search, Module, and Value Drivers Filter Toolbar; 4) Dynamic Grid and Matrix View toggle for the 38 Master Vignettes; 5) Custom Demo Playlist & Flow Builder allows SEs to build tailored prospect demo agendas, reorder them, and step through interactive slides; 6) Instant Copy-to-Clipboard buttons for Navigation Steps and "Aha!" Talk Tracks. Chosen to maximize SE speed during live prep and tailored call execution. -->
+    <!-- Application Structure Plan: Designed as an interactive Sales Engineer Enablement & Demo Hub. Structure includes: 1) Executive Header & Quick KPI Metrics; 2) Analytical Dashboard section with Chart.js charts breaking down vignettes by Module & Value Proposition; 3) Interactive Search, Module, and Value Drivers Filter Toolbar; 4) Dynamic Grid and Matrix View toggle for the 44 Master Vignettes; 5) Custom Demo Playlist & Flow Builder allows SEs to build tailored prospect demo agendas, reorder them, and step through interactive slides; 6) Instant Copy-to-Clipboard buttons for Navigation Steps and "Aha!" Talk Tracks. Chosen to maximize SE speed during live prep and tailored call execution. -->
     <!-- Visualization & Content Choices: 1. Module Distribution Chart -> Chart.js Doughnut Chart -> Interactive slice selection to filter vignettes by module -> Confirms clean spatial breakdown without SVG. 2. Business Value Focus Chart -> Chart.js Horizontal Bar Chart -> Interactive filtering by key prospect pain points -> Helps SEs tailor demos to prospect requirements. 3. Interactive Vignette Catalog -> Responsive HTML/CSS Cards with step-by-step sequence tags, copyable talk tracks, screenshot filename badges -> Zero SVG used. 4. Interactive Playlist Modal & Slide Deck -> Pure JS state management for step-by-step walkthroughs. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
@@ -174,7 +174,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-5 py-4 border-b border-slate-100">
                     <h3 class="text-sm font-bold text-slate-900">Video Walkthroughs</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Watch a guided tour of each available Demo Pioneers module.</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Watch guided tours for available Demo Pioneers modules.</p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-px bg-slate-100">
                     <div class="bg-white p-4 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 hover:bg-slate-50 transition">
@@ -237,7 +237,7 @@
     <section id="analyticsSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="mb-4">
             <h3 class="text-base font-bold text-slate-900">Demo Environment Coverage Analytics</h3>
-            <p class="text-xs text-slate-500">Overview of available demo vignettes grouped by functional module and primary prospect pain point target, including the new Workforce Planning coverage.</p>
+            <p class="text-xs text-slate-500">Overview of available demo vignettes grouped by functional module and primary prospect pain point target, now including Learning.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -311,13 +311,14 @@
             <!-- Filter Pills -->
             <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200">
                 <span class="text-xs font-semibold text-slate-500 mr-2">Module:</span>
-                <button class="filter-mod-btn active px-3 py-1 rounded-full text-xs font-medium bg-indigo-600 text-white shadow-sm" data-module="All">All (39)</button>
+                <button class="filter-mod-btn active px-3 py-1 rounded-full text-xs font-medium bg-indigo-600 text-white shadow-sm" data-module="All">All (44)</button>
                 <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Core">Core (11)</button>
                 <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Talent">Talent (11)</button>
                 <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Compensation">Compensation (4)</button>
                 <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Hiring (ATS)">Hiring (ATS) (6)</button>
-                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Payroll Hub">Payroll Hub (1)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Learning">Learning</button>
                 <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Workforce Planning">Workforce Planning (6)</button>
+                <button class="filter-mod-btn px-3 py-1 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-module="Payroll Hub">Payroll Hub (1)</button>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -332,7 +333,7 @@
 
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <div id="filterStatus" class="text-xs text-slate-500 italic pt-1">
-                    Showing all 39 vignettes
+                    Showing all 44 vignettes
                 </div>
                 <button id="addFilteredBtn" onclick="addFilteredToPlaylist()" class="px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 rounded-lg transition">
                     Add Selected to Demo Flow
@@ -609,7 +610,7 @@
 
     <!-- MAIN JAVASCRIPT DATA AND LOGIC -->
     <script>
-        // MASTER VIGNETTES DATABASE (39 Complete Vignettes)
+        // MASTER VIGNETTES DATABASE (44 Complete Vignettes)
         const vignettesData = [
             // --- CORE MODULE (10) ---
             {
@@ -1008,6 +1009,73 @@
                 tags: ["Pay Parity", "Global Compliance"]
             },
 
+            // --- LEARNING MODULE (5) ---
+            {
+                id: "learning-1",
+                module: "Learning",
+                title: "Learning Analytics",
+                screenshot: "Learning Analytics.png",
+                nav: [
+                    "Click on Learning (book icon) in the left-hand navigation menu.",
+                    "Ensure you are on the Key Dashboards tab."
+                ],
+                aha: "L&D teams typically fly blind, unable to prove the ROI of their programs because they cannot accurately track platform adoption across a distributed workforce. This screen proves Bob provides instant, executive-level visibility into global learning engagement and content consumption. The 'aha!' moment is contrasting the 900 'Total users' metric directly against the mere 105 'Engaged learners,' and then pointing to the 'Total vs. engaged' bar chart below to show the massive drop-off in the Tel Aviv office (216 total users vs. only 20 active). It demonstrates to the prospect that Bob immediately highlights exactly where training initiatives are failing so L&D can proactively intervene.",
+                tags: ["Analytics", "Employee Experience"]
+            },
+            {
+                id: "learning-2",
+                module: "Learning",
+                title: "Learning Course Creation",
+                screenshot: "Learning Course Creation.png",
+                nav: [
+                    "Click on Learning in the left-hand navigation menu.",
+                    "Open a specific course in draft mode (e.g., Leading with Confidence: A People-First Approach).",
+                    "Navigate to the Curriculum section on the left-hand menu.",
+                    "Click the + Add lesson button under an active section."
+                ],
+                aha: "Building courses in legacy LMS platforms is a disjointed nightmare, forcing HR to stitch together content from disparate external authoring tools. This screen proves Bob allows seamless, multi-modal course assembly directly within a single administrative workflow. The 'aha!' moment is expanding the '+ Add lesson' dropdown to show the vast variety of supported formats, demonstrating how an admin can instantly mix external SCORM files (like the visible 'new-manager-training-scorm12.zip') with native quizzes, tests, and embedded videos all within the same 'Getting started' curriculum section.",
+                tags: ["Automation", "Employee Experience"]
+            },
+            {
+                id: "learning-3",
+                module: "Learning",
+                title: "Learning Library",
+                screenshot: "Learning Library.png",
+                nav: [
+                    "Click on Learning in the left-hand navigation menu.",
+                    "Navigate to the Library tab."
+                ],
+                aha: "Employees consistently ignore corporate learning portals because the catalogs feel outdated, irrelevant, and impossible to navigate. This view proves Bob delivers a consumer-grade, Netflix-style learning experience that drives organic upskilling. The 'aha!' moment is highlighting the personalized 'Suggested learning for you' section, which seamlessly blends premium third-party Udemy courses (like the 8h 30m 'Introduction to Probability and Statistics') right alongside internal 'Live learning' events (like 'AI at Work Live'). It shows the prospect that Bob automatically curates and surfaces hyper-relevant development opportunities to keep employees engaged.",
+                tags: ["Culture", "Employee Experience"]
+            },
+            {
+                id: "learning-4",
+                module: "Learning",
+                title: "People's Learning",
+                screenshot: "People's Learning.png",
+                nav: [
+                    "Log in or switch view as a Manager/Admin (e.g., Annabelle Merritt).",
+                    "Click on Learning in the left-hand navigation menu.",
+                    "Select the People's learning tab.",
+                    "Check the boxes next to specific employees (e.g., Branden Green and Ido Rosenberg).",
+                    "Click the Actions dropdown menu."
+                ],
+                aha: "Managers and HR admins waste hours manually tracking down individual employees in spreadsheets to enforce compliance and training deadlines. This screen proves Bob empowers leaders to monitor team completion rates and drive accountability in bulk. The 'aha!' moment is showing the aggregated metrics at the top (like the 16m 25s Average learning time) combined with the open 'Actions' menu over selected employees. It proves that a manager can identify stragglers—like Ido Rosenberg, who has 0 completed enrollments—and instantly execute a 'Send reminder' nudge with a single click, entirely eliminating manual follow-up emails.",
+                tags: ["Analytics", "Automation", "Self-Service"]
+            },
+            {
+                id: "learning-5",
+                module: "Learning",
+                title: "My Learning",
+                screenshot: "My Learning.png",
+                nav: [
+                    "Log in or switch view as an Employee (e.g., Amy Miles).",
+                    "Click on Learning in the left-hand navigation menu.",
+                    "Ensure you are on the My learning tab."
+                ],
+                aha: "Employees constantly lose track of mandatory training assignments buried deep in their inboxes, leading to massive organizational compliance risks. This screen proves Bob centralizes every employee's specific learning requirements and progress into one clear, highly actionable view. The 'aha!' moment is the persistent 'Due-soon items' panel locked on the right side of the screen, explicitly flagging the 'Embracing DE&I in the Workplace' course with a hard, color-coded deadline of 'Due 09/06/2026'. It proves to the prospect that Bob removes all ambiguity, ensuring employees always know exactly what training is required and when it must be completed.",
+                tags: ["Global Compliance", "Self-Service", "Employee Experience"]
+            },
 
             // --- WORKFORCE PLANNING MODULE (6) ---
             {
@@ -1135,7 +1203,7 @@
             const ctxModule = document.getElementById('moduleChart').getContext('2d');
             const moduleLabels = [...new Set(vignettesData.map(v => v.module))];
             const moduleCounts = moduleLabels.map(label => vignettesData.filter(v => v.module === label).length);
-            const moduleColors = ['#4F46E5', '#0D9488', '#D97706', '#2563EB', '#059669', '#9333EA'];
+            const moduleColors = ['#4F46E5', '#0D9488', '#D97706', '#2563EB', '#E11D48', '#059669', '#9333EA'];
             moduleChartInstance = new Chart(ctxModule, {
                 type: 'doughnut',
                 data: {
@@ -1618,6 +1686,7 @@
             "Talent": "talent",
             "Compensation": "comp",
             "Hiring (ATS)": "hiring",
+            "Learning": "learning",
             "Payroll Hub": "pr hub",
             "Workforce Planning": "wfp"
         };
@@ -1817,6 +1886,7 @@
                 case 'Talent': return 'bg-teal-100 text-teal-800 border border-teal-200';
                 case 'Compensation': return 'bg-amber-100 text-amber-800 border border-amber-200';
                 case 'Hiring (ATS)': return 'bg-blue-100 text-blue-800 border border-blue-200';
+                case 'Learning': return 'bg-rose-100 text-rose-800 border border-rose-200';
                 case 'Payroll Hub': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
                 case 'Workforce Planning': return 'bg-purple-100 text-purple-800 border border-purple-200';
                 default: return 'bg-slate-100 text-slate-800';
